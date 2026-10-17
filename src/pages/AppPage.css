@@ -1,0 +1,116 @@
+.app-page {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+/* ---- Header ---- */
+.app-header {
+  background-color: var(--color-header);
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-header__naziv-kluba {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-white);
+}
+
+.app-header__podnaslov {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ---- Navigacija ---- */
+.app-navigacija {
+  background-color: var(--color-bg);
+  padding: 16px 32px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-navigacija__lista {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  /* Sakriva scrollbar na desktop-u, ali omogućava skrolovanje */
+  scrollbar-width: none;
+}
+
+.app-navigacija__lista::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-dugme {
+  padding: 8px 18px;
+  border-radius: 99px;
+  border: 1.5px solid var(--color-border);
+  background-color: var(--color-white);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.tab-dugme:hover {
+  background-color: var(--color-bg);
+}
+
+.tab-dugme--aktivan {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.tab-dugme--aktivan:hover {
+  background-color: var(--color-primary);
+}
+
+/* ---- Sadržaj ---- */
+.app-sadrzaj {
+  padding: 28px 32px;
+  max-width: 900px;
+}
+
+.placeholder-sekcija {
+  color: var(--color-text-secondary);
+  padding: 40px 0;
+}
+
+/* ---- Dugme za odjavu ---- */
+.btn-odjava {
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 7px 16px;
+  border-radius: var(--border-radius);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+}
+
+.btn-odjava:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    padding: 16px 16px;
+  }
+
+  .app-navigacija {
+    padding: 12px 16px 0;
+  }
+
+  .app-sadrzaj {
+    padding: 20px 16px;
+  }
+}

@@ -1,13 +1,184 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ============================================================
+   Globalni stilovi i CSS varijable
+   ============================================================ */
+
+:root {
+  --color-bg:              #f0efe9;
+  --color-header:          #5b1a0a;
+  --color-primary:         #e5521f;
+  --color-white:           #ffffff;
+  --color-border:          #e0dbd2;
+  --color-text:            #1a1a1a;
+  --color-text-secondary:  #6b6b6b;
+  --color-error:           #c0392b;
+  --border-radius:         8px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   Zajednički stilovi za dugmad
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 20px;
+  border-radius: var(--border-radius);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, background-color 0.15s;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 1.5px solid var(--color-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-border);
+}
+
+.btn-danger-outline {
+  background-color: transparent;
+  color: var(--color-error);
+  border: 1.5px solid var(--color-border);
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+}
+
+.btn-danger-outline:hover {
+  background-color: #fdf0ef;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+/* ============================================================
+   Zajednički stilovi za forme
+   ============================================================ */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.form-label__opciono {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.form-input {
+  padding: 9px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 14px;
+  color: var(--color-text);
+  background-color: var(--color-white);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.form-input:focus {
+  border-color: var(--color-primary);
+}
+
+.form-input::placeholder {
+  color: #b0aba4;
+}
+
+.form-input:disabled {
+  background-color: var(--color-bg);
+  cursor: not-allowed;
+}
+
+.form-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-error);
+}
+
+/* ============================================================
+   Zajednički stilovi za status prikaze
+   ============================================================ */
+
+.status-tekst {
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.status-tekst--greska {
+  color: var(--color-error);
+}
+
+/* ============================================================
+   Fullpage centrirani ekran (loading, greška bez profila)
+   ============================================================ */
+
+.fullpage-center {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background-color: var(--color-bg);
+}
+
+.loading-text {
+  color: var(--color-text-secondary);
+  font-size: 15px;
+}
+
+.error-text {
+  color: var(--color-error);
+  font-size: 15px;
+  text-align: center;
 }
