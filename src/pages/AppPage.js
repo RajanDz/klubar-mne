@@ -35,10 +35,10 @@ function AppPage() {
   return (
     <div className="app-page">
       <header className="app-header">
-        <div className="app-header__info">
-          <h1 className="app-header__club-name">{clubName}</h1>
+        <div className="app-header__left">
+          <span className="app-header__club-name">{clubName}</span>
           {userName && (
-            <p className="app-header__subtitle">vlasnik: {userName}</p>
+            <span className="app-header__user">{userName}</span>
           )}
         </div>
         <button className="btn-sign-out" onClick={signOut}>
@@ -51,7 +51,7 @@ function AppPage() {
           {TABS.map((tab) => (
             <button
               key={tab.id}
-              className={`tab-button ${activeTab === tab.id ? 'tab-button--active' : ''}`}
+              className={`nav-tab ${activeTab === tab.id ? 'nav-tab--active' : ''}`}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.label}

@@ -1,14 +1,13 @@
 .groups-page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--sp-5);
 }
 
-/* Desna strana reda u listi grupe: dropdown + dugme */
 .group-row__actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   flex-shrink: 0;
 }
 

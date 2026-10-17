@@ -10,6 +10,7 @@ function CoachesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [showForm, setShowForm] = useState(false);
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newEmail, setNewEmail] = useState('');
@@ -24,7 +25,6 @@ function CoachesPage() {
     setLoading(true);
     setError('');
 
-    // Učitavamo trenere zajedno sa grupama kojima su dodijeljeni
     const { data, error: fetchError } = await supabase
       .from('coaches')
       .select('id, full_name, phone, email, created_at, coach_groups(group_id, groups(id, name))')
@@ -66,6 +66,7 @@ function CoachesPage() {
       setNewName('');
       setNewPhone('');
       setNewEmail('');
+      setShowForm(false);
       await loadCoaches();
     }
 
@@ -109,99 +110,125 @@ function CoachesPage() {
   return (
     <div className="coaches-page">
 
-      <div className="card">
-        {coaches.length === 0 ? (
-          <p className="empty-state">Klub još nema nijednog trenera.</p>
-        ) : (
-          <ul className="item-list">
-            {coaches.map((coach, index) => {
-                return (
-                <li
-                  key={coach.id}
-                  className={`item-list__row ${index < coaches.length - 1 ? 'item-list__row--separator' : ''}`}
-                >
-                  <div className="item-list__info">
-                    <span className="item-list__name">{coach.full_name}</span>
-                    {coach.phone && (
-                      <span className="item-list__description">{coach.phone}</span>
-                    )}
-                    {coach.coach_groups?.length > 0 && (
-                      <div className="group-tags">
-                        {coach.coach_groups.map((cg) => (
-                          <span key={cg.group_id} className="group-tag">
-                            {cg.groups?.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    className="btn btn-outline-danger"
-                    onClick={() => handleDeleteCoach(coach.id, coach.full_name)}
-                  >
-                    Obriši
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+      <div className="page-header">
+        <div>
+          <h2 className="page-header__title">Treneri</h2>
+          <p className="page-header__description">
+            Stručni kadar i dodjele grupama
+          </p>
+        </div>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            setShowForm((prev) => !prev);
+            setFormError('');
+          }}
+        >
+          {showForm ? 'Odustani' : 'Novi trener'}
+        </button>
       </div>
 
+      {showForm && (
+        <div className="card">
+          <div className="card__body">
+            <h3 className="card__title">Novi trener</h3>
+            <form onSubmit={handleAddCoach}>
+              <div className="form-field">
+                <label className="form-label" htmlFor="coach-name">
+                  Ime i prezime
+                </label>
+                <input
+                  id="coach-name"
+                  className="form-input"
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="npr. Marko Marković"
+                  disabled={saving}
+                  autoFocus
+                />
+              </div>
+
+              <div className="form-field">
+                <label className="form-label" htmlFor="coach-phone">
+                  Telefon <span className="form-label__optional">(opciono)</span>
+                </label>
+                <input
+                  id="coach-phone"
+                  className="form-input"
+                  type="tel"
+                  value={newPhone}
+                  onChange={(e) => setNewPhone(e.target.value)}
+                  placeholder="npr. 067 123 456"
+                  disabled={saving}
+                />
+              </div>
+
+              <div className="form-field">
+                <label className="form-label" htmlFor="coach-email">
+                  Email <span className="form-label__optional">(opciono)</span>
+                </label>
+                <input
+                  id="coach-email"
+                  className="form-input"
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="npr. marko@email.com"
+                  disabled={saving}
+                />
+              </div>
+
+              {formError && <p className="form-error">{formError}</p>}
+
+              <button className="btn btn-primary" type="submit" disabled={saving}>
+                {saving ? 'Dodavanje...' : 'Dodaj trenera'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="card">
-        <h2 className="card__title">Novi trener</h2>
-        <form onSubmit={handleAddCoach}>
-          <div className="form-field">
-            <label className="form-label" htmlFor="coach-name">
-              Ime i prezime
-            </label>
-            <input
-              id="coach-name"
-              className="form-input"
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="npr. Marko Marković"
-              disabled={saving}
-            />
+        {coaches.length === 0 ? (
+          <div className="empty-state">
+            <p className="empty-state__title">Nema trenera</p>
+            <p className="empty-state__description">
+              Klub još nema nijednog trenera.
+            </p>
           </div>
-
-          <div className="form-field">
-            <label className="form-label" htmlFor="coach-phone">
-              Telefon <span className="form-label__optional">(opciono)</span>
-            </label>
-            <input
-              id="coach-phone"
-              className="form-input"
-              type="tel"
-              value={newPhone}
-              onChange={(e) => setNewPhone(e.target.value)}
-              placeholder="npr. 067 123 456"
-              disabled={saving}
-            />
-          </div>
-
-          <div className="form-field">
-            <label className="form-label" htmlFor="coach-email">
-              Email <span className="form-label__optional">(opciono)</span>
-            </label>
-            <input
-              id="coach-email"
-              className="form-input"
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              placeholder="npr. marko@email.com"
-              disabled={saving}
-            />
-          </div>
-
-          {formError && <p className="form-error">{formError}</p>}
-
-          <button className="btn btn-primary" type="submit" disabled={saving}>
-            {saving ? 'Dodavanje...' : 'Dodaj trenera'}
-          </button>
-        </form>
+        ) : (
+          <ul className="item-list">
+            {coaches.map((coach, index) => (
+              <li
+                key={coach.id}
+                className={`item-list__row ${index < coaches.length - 1 ? 'item-list__row--separator' : ''}`}
+              >
+                <div className="item-list__info">
+                  <span className="item-list__name">{coach.full_name}</span>
+                  {coach.phone && (
+                    <span className="item-list__description">{coach.phone}</span>
+                  )}
+                  {coach.coach_groups?.length > 0 && (
+                    <div className="group-tags">
+                      {coach.coach_groups.map((cg) => (
+                        <span key={cg.group_id} className="group-tag">
+                          {cg.groups?.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button
+                  className="btn btn-outline-danger"
+                  onClick={() => handleDeleteCoach(coach.id, coach.full_name)}
+                >
+                  Obriši
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <p className="coaches-page__hint">

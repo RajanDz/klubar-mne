@@ -1,43 +1,56 @@
 .app-page {
   min-height: 100vh;
-  background-color: var(--color-bg);
+  background-color: var(--bg);
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---- Header ---- */
 .app-header {
-  background-color: var(--color-header);
-  padding: 24px 32px;
+  background-color: var(--header-bg);
+  padding: 0 var(--sp-8);
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--sp-4);
+  flex-shrink: 0;
+}
+
+.app-header__left {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  min-width: 0;
 }
 
 .app-header__club-name {
-  margin: 0 0 4px;
-  font-size: 22px;
+  margin: 0;
+  font-size: var(--text-base);
   font-weight: 700;
-  color: var(--color-white);
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.app-header__subtitle {
-  margin: 0;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.65);
+.app-header__user {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
 }
 
 /* ---- Navigation ---- */
 .app-nav {
-  background-color: var(--color-bg);
-  padding: 16px 32px 0;
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 var(--sp-8);
+  flex-shrink: 0;
 }
 
 .app-nav__list {
   display: flex;
-  gap: 6px;
   overflow-x: auto;
-  padding-bottom: 16px;
   scrollbar-width: none;
 }
 
@@ -45,71 +58,70 @@
   display: none;
 }
 
-.tab-button {
-  padding: 8px 18px;
-  border-radius: 99px;
-  border: 1.5px solid var(--color-border);
-  background-color: var(--color-white);
-  color: var(--color-text);
-  font-size: 14px;
+.nav-tab {
+  padding: 13px var(--sp-4);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  transition: color 0.12s, border-color 0.12s;
+  margin-bottom: -1px;
 }
 
-.tab-button:hover {
-  background-color: var(--color-bg);
+.nav-tab:hover {
+  color: var(--text);
 }
 
-.tab-button--active {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-white);
-}
-
-.tab-button--active:hover {
-  background-color: var(--color-primary);
+.nav-tab--active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
 }
 
 /* ---- Content area ---- */
 .app-content {
-  padding: 28px 32px;
-  max-width: 900px;
+  padding: var(--sp-8);
+  max-width: 860px;
+  width: 100%;
 }
 
 .placeholder-section {
-  color: var(--color-text-secondary);
-  padding: 40px 0;
+  color: var(--text-muted);
+  padding: var(--sp-10) 0;
 }
 
 /* ---- Sign out button ---- */
 .btn-sign-out {
   background: transparent;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  color: rgba(255, 255, 255, 0.85);
-  padding: 7px 16px;
-  border-radius: var(--border-radius);
-  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.75);
+  padding: 5px var(--sp-3);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.15s;
+  flex-shrink: 0;
+  transition: background-color 0.12s, border-color 0.12s;
 }
 
 .btn-sign-out:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.45);
 }
 
 @media (max-width: 600px) {
   .app-header {
-    padding: 16px;
+    padding: 0 var(--sp-4);
   }
 
   .app-nav {
-    padding: 12px 16px 0;
+    padding: 0 var(--sp-4);
   }
 
   .app-content {
-    padding: 20px 16px;
+    padding: var(--sp-5) var(--sp-4);
   }
 }

@@ -26,19 +26,18 @@ function LoginPage() {
       return;
     }
 
-    // Uspješna prijava — AuthContext preuzima sesiju, preusmjeravamo na app
     navigate('/', { replace: true });
   }
 
   return (
     <div className="login-page">
       <div className="login-card">
-        <div className="login-card__header">
+        <div className="login-card__brand">
           <h1 className="login-card__title">Klubar</h1>
           <p className="login-card__subtitle">Upravljanje sportskim klubovima</p>
         </div>
 
-        <form className="login-form" onSubmit={handleLogin}>
+        <form onSubmit={handleLogin}>
           <div className="form-field">
             <label className="form-label" htmlFor="email">
               Email adresa
@@ -71,9 +70,7 @@ function LoginPage() {
             />
           </div>
 
-          {error && (
-            <p className="form-error">{error}</p>
-          )}
+          {error && <p className="form-error">{error}</p>}
 
           <button
             className="btn btn-primary btn-full"
