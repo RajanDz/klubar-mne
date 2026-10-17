@@ -9,3 +9,22 @@
   font-size: 13px;
   color: var(--color-text-secondary);
 }
+
+/* Tagovi koji pokazuju grupe dodijeljene treneru */
+.group-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.group-tag {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text);
+  background-color: var(--color-white);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 3px 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}

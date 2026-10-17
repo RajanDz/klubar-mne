@@ -91,17 +91,6 @@ function CoachesPage() {
     await loadCoaches();
   }
 
-  // Iz coach_groups extractujemo nazive grupa i spajamo ih u string
-  function getGroupNames(coach) {
-    if (!coach.coach_groups || coach.coach_groups.length === 0) {
-      return null;
-    }
-    return coach.coach_groups
-      .map((cg) => cg.groups?.name)
-      .filter(Boolean)
-      .join(', ');
-  }
-
   if (loading) {
     return <p className="text-secondary">Učitavanje trenera...</p>;
   }
@@ -126,19 +115,24 @@ function CoachesPage() {
         ) : (
           <ul className="item-list">
             {coaches.map((coach, index) => {
-              const groupNames = getGroupNames(coach);
-              return (
+                return (
                 <li
                   key={coach.id}
                   className={`item-list__row ${index < coaches.length - 1 ? 'item-list__row--separator' : ''}`}
                 >
                   <div className="item-list__info">
                     <span className="item-list__name">{coach.full_name}</span>
-                    {groupNames && (
-                      <span className="item-list__meta">{groupNames}</span>
-                    )}
                     {coach.phone && (
                       <span className="item-list__description">{coach.phone}</span>
+                    )}
+                    {coach.coach_groups?.length > 0 && (
+                      <div className="group-tags">
+                        {coach.coach_groups.map((cg) => (
+                          <span key={cg.group_id} className="group-tag">
+                            {cg.groups?.name}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
                   <button
