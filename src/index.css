@@ -143,6 +143,27 @@ body {
   color: var(--color-error);
 }
 
+.form-select {
+  padding: 7px 10px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 14px;
+  color: var(--color-text);
+  background-color: var(--color-white);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-select:focus {
+  border-color: var(--color-primary);
+}
+
+.form-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ============================================================
    Card — white container used across all sections
    ============================================================ */

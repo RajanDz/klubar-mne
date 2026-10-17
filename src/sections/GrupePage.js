@@ -7,8 +7,12 @@ function GrupePage() {
   const { profile } = useAuth();
 
   const [groups, setGroups] = useState([]);
+  const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Prati koji group_id se trenutno ažurira (za disabled stanje dropdowna)
+  const [assigningGroupId, setAssigningGroupId] = useState(null);
 
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -16,25 +20,66 @@ function GrupePage() {
   const [formError, setFormError] = useState('');
 
   useEffect(() => {
-    loadGroups();
+    loadData();
   }, []);
 
-  async function loadGroups() {
+  async function loadData() {
     setLoading(true);
     setError('');
 
-    const { data, error: fetchError } = await supabase
-      .from('groups')
-      .select('id, name, description, created_at, children_groups(child_id)')
-      .order('created_at', { ascending: true });
+    // Učitavamo grupe i trenere istovremeno
+    const [groupsResult, coachesResult] = await Promise.all([
+      supabase
+        .from('groups')
+        .select(`
+          id,
+          name,
+          description,
+          created_at,
+          children_groups ( child_id ),
+          coach_groups ( coach_id, coaches ( id, full_name ) )
+        `)
+        .order('created_at', { ascending: true }),
 
-    if (fetchError) {
+      supabase
+        .from('coaches')
+        .select('id, full_name')
+        .order('full_name', { ascending: true }),
+    ]);
+
+    if (groupsResult.error) {
       setError('Nije moguće učitati grupe. Pokušajte ponovo.');
     } else {
-      setGroups(data);
+      setGroups(groupsResult.data);
+    }
+
+    if (!coachesResult.error) {
+      setCoaches(coachesResult.data);
     }
 
     setLoading(false);
+  }
+
+  async function handleAssignCoach(groupId, coachId) {
+    setAssigningGroupId(groupId);
+
+    // Ukloniti postojeću dodjelu za ovu grupu
+    await supabase
+      .from('coach_groups')
+      .delete()
+      .eq('group_id', groupId);
+
+    // Ako je odabran trener (nije "bez trenera"), upisati novu dodjelu
+    if (coachId) {
+      await supabase.from('coach_groups').insert({
+        club_id: profile.club_id,
+        coach_id: coachId,
+        group_id: groupId,
+      });
+    }
+
+    await loadData();
+    setAssigningGroupId(null);
   }
 
   async function handleAddGroup(e) {
@@ -62,7 +107,7 @@ function GrupePage() {
     } else {
       setNewName('');
       setNewDescription('');
-      await loadGroups();
+      await loadData();
     }
 
     setSaving(false);
@@ -88,7 +133,7 @@ function GrupePage() {
       return;
     }
 
-    await loadGroups();
+    await loadData();
   }
 
   if (loading) {
@@ -99,7 +144,7 @@ function GrupePage() {
     return (
       <div>
         <p className="text-error">{error}</p>
-        <button className="btn btn-secondary" onClick={loadGroups}>
+        <button className="btn btn-secondary" onClick={loadData}>
           Pokušaj ponovo
         </button>
       </div>
@@ -114,28 +159,52 @@ function GrupePage() {
           <p className="empty-state">Klub još nema nijednu grupu.</p>
         ) : (
           <ul className="item-list">
-            {groups.map((group, index) => (
-              <li
-                key={group.id}
-                className={`item-list__row ${index < groups.length - 1 ? 'item-list__row--separator' : ''}`}
-              >
-                <div className="item-list__info">
-                  <span className="item-list__name">{group.name}</span>
-                  <span className="item-list__meta">
-                    {group.children_groups.length} djece
-                  </span>
-                  {group.description && (
-                    <span className="item-list__description">{group.description}</span>
-                  )}
-                </div>
-                <button
-                  className="btn btn-outline-danger"
-                  onClick={() => handleDeleteGroup(group.id, group.name)}
+            {groups.map((group, index) => {
+              // Svaka grupa ima najviše jednog trenera u UI-u (index 0)
+              const currentCoachId = group.coach_groups?.[0]?.coach_id ?? '';
+              const isAssigning = assigningGroupId === group.id;
+
+              return (
+                <li
+                  key={group.id}
+                  className={`item-list__row ${index < groups.length - 1 ? 'item-list__row--separator' : ''}`}
                 >
-                  Obriši
-                </button>
-              </li>
-            ))}
+                  <div className="item-list__info">
+                    <span className="item-list__name">{group.name}</span>
+                    <span className="item-list__meta">
+                      {group.children_groups.length} djece
+                    </span>
+                    {group.description && (
+                      <span className="item-list__description">{group.description}</span>
+                    )}
+                  </div>
+
+                  <div className="group-row__actions">
+                    <select
+                      className="form-select"
+                      value={currentCoachId}
+                      onChange={(e) => handleAssignCoach(group.id, e.target.value)}
+                      disabled={isAssigning}
+                    >
+                      <option value="">— bez trenera —</option>
+                      {coaches.map((coach) => (
+                        <option key={coach.id} value={coach.id}>
+                          {coach.full_name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      className="btn btn-outline-danger"
+                      onClick={() => handleDeleteGroup(group.id, group.name)}
+                      disabled={isAssigning}
+                    >
+                      Obriši
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
