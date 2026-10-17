@@ -6,86 +6,81 @@ import './GrupePage.css';
 function GrupePage() {
   const { profile } = useAuth();
 
-  // Lista grupa — svaka grupa sadrži i children_groups array za brojanje djece
-  const [grupe, setGrupe] = useState([]);
-  const [ucitavanje, setUcitavanje] = useState(true);
-  const [greska, setGreska] = useState('');
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Stanje forme za kreiranje nove grupe
-  const [noviNaziv, setNoviNaziv] = useState('');
-  const [noviOpis, setNoviOpis] = useState('');
-  const [cuvanje, setCuvanje] = useState(false);
-  const [greskaForme, setGreskaForme] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState('');
 
   useEffect(() => {
-    ucitajGrupe();
+    loadGroups();
   }, []);
 
-  async function ucitajGrupe() {
-    setUcitavanje(true);
-    setGreska('');
+  async function loadGroups() {
+    setLoading(true);
+    setError('');
 
-    // Učitavamo grupe zajedno sa children_groups zapisima da bismo mogli
-    // izbrojati koliko djece pripada svakoj grupi
-    const { data, error } = await supabase
+    const { data, error: fetchError } = await supabase
       .from('groups')
       .select('id, name, description, created_at, children_groups(child_id)')
       .order('created_at', { ascending: true });
 
-    if (error) {
-      setGreska('Nije moguće učitati grupe. Pokušajte ponovo.');
+    if (fetchError) {
+      setError('Nije moguće učitati grupe. Pokušajte ponovo.');
     } else {
-      setGrupe(data);
+      setGroups(data);
     }
 
-    setUcitavanje(false);
+    setLoading(false);
   }
 
-  async function handleDodajGrupu(e) {
+  async function handleAddGroup(e) {
     e.preventDefault();
-    setGreskaForme('');
+    setFormError('');
 
-    const naziv = noviNaziv.trim();
-    if (!naziv) {
-      setGreskaForme('Naziv grupe je obavezan.');
+    const name = newName.trim();
+    if (!name) {
+      setFormError('Naziv grupe je obavezan.');
       return;
     }
 
-    setCuvanje(true);
+    setSaving(true);
 
-    const { error } = await supabase
+    const { error: insertError } = await supabase
       .from('groups')
       .insert({
         club_id: profile.club_id,
-        name: naziv,
-        description: noviOpis.trim() || null,
+        name,
+        description: newDescription.trim() || null,
       });
 
-    if (error) {
-      setGreskaForme('Kreiranje grupe nije uspjelo. Pokušajte ponovo.');
+    if (insertError) {
+      setFormError('Kreiranje grupe nije uspjelo. Pokušajte ponovo.');
     } else {
-      setNoviNaziv('');
-      setNoviOpis('');
-      await ucitajGrupe();
+      setNewName('');
+      setNewDescription('');
+      await loadGroups();
     }
 
-    setCuvanje(false);
+    setSaving(false);
   }
 
-  async function handleObrisiGrupu(grupaId, nazivGrupe) {
-    const potvrda = window.confirm(
-      `Da li ste sigurni da želite obrisati grupu "${nazivGrupe}"?`
+  async function handleDeleteGroup(groupId, groupName) {
+    const confirmed = window.confirm(
+      `Da li ste sigurni da želite obrisati grupu "${groupName}"?`
     );
-    if (!potvrda) return;
+    if (!confirmed) return;
 
-    const { error } = await supabase
+    const { error: deleteError } = await supabase
       .from('groups')
       .delete()
-      .eq('id', grupaId);
+      .eq('id', groupId);
 
-    if (error) {
-      // Brisanje može biti blokiran ako grupa ima evidenciju dolazaka
-      if (error.code === '23503') {
+    if (deleteError) {
+      if (deleteError.code === '23503') {
         alert('Nije moguće obrisati grupu koja ima evidenciju dolazaka.');
       } else {
         alert('Brisanje nije uspjelo. Pokušajte ponovo.');
@@ -93,20 +88,18 @@ function GrupePage() {
       return;
     }
 
-    await ucitajGrupe();
+    await loadGroups();
   }
 
-  // ---- Stanja prikaza ----
-
-  if (ucitavanje) {
-    return <p className="status-tekst">Učitavanje grupa...</p>;
+  if (loading) {
+    return <p className="text-secondary">Učitavanje grupa...</p>;
   }
 
-  if (greska) {
+  if (error) {
     return (
       <div>
-        <p className="status-tekst status-tekst--greska">{greska}</p>
-        <button className="btn btn-secondary" onClick={ucitajGrupe}>
+        <p className="text-error">{error}</p>
+        <button className="btn btn-secondary" onClick={loadGroups}>
           Pokušaj ponovo
         </button>
       </div>
@@ -114,31 +107,30 @@ function GrupePage() {
   }
 
   return (
-    <div className="grupe-stranica">
+    <div className="groups-page">
 
-      {/* Lista postojećih grupa */}
-      <div className="kartica">
-        {grupe.length === 0 ? (
-          <p className="prazno-stanje">Klub još nema nijednu grupu.</p>
+      <div className="card">
+        {groups.length === 0 ? (
+          <p className="empty-state">Klub još nema nijednu grupu.</p>
         ) : (
-          <ul className="grupe-lista">
-            {grupe.map((grupa, index) => (
+          <ul className="item-list">
+            {groups.map((group, index) => (
               <li
-                key={grupa.id}
-                className={`grupe-stavka ${index < grupe.length - 1 ? 'grupe-stavka--separator' : ''}`}
+                key={group.id}
+                className={`item-list__row ${index < groups.length - 1 ? 'item-list__row--separator' : ''}`}
               >
-                <div className="grupe-stavka__info">
-                  <span className="grupe-stavka__naziv">{grupa.name}</span>
-                  <span className="grupe-stavka__djeca">
-                    {grupa.children_groups.length} djece
+                <div className="item-list__info">
+                  <span className="item-list__name">{group.name}</span>
+                  <span className="item-list__meta">
+                    {group.children_groups.length} djece
                   </span>
-                  {grupa.description && (
-                    <span className="grupe-stavka__opis">{grupa.description}</span>
+                  {group.description && (
+                    <span className="item-list__description">{group.description}</span>
                   )}
                 </div>
                 <button
-                  className="btn btn-danger-outline"
-                  onClick={() => handleObrisiGrupu(grupa.id, grupa.name)}
+                  className="btn btn-outline-danger"
+                  onClick={() => handleDeleteGroup(group.id, group.name)}
                 >
                   Obriši
                 </button>
@@ -148,50 +140,43 @@ function GrupePage() {
         )}
       </div>
 
-      {/* Forma za kreiranje nove grupe */}
-      <div className="kartica">
-        <h2 className="kartica__naslov">Nova grupa</h2>
-        <form onSubmit={handleDodajGrupu}>
+      <div className="card">
+        <h2 className="card__title">Nova grupa</h2>
+        <form onSubmit={handleAddGroup}>
           <div className="form-field">
-            <label className="form-label" htmlFor="naziv-grupe">
+            <label className="form-label" htmlFor="group-name">
               Naziv grupe
             </label>
             <input
-              id="naziv-grupe"
+              id="group-name"
               className="form-input"
               type="text"
-              value={noviNaziv}
-              onChange={(e) => setNoviNaziv(e.target.value)}
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
               placeholder="npr. Kadeti 2011"
-              disabled={cuvanje}
+              disabled={saving}
             />
           </div>
 
           <div className="form-field">
-            <label className="form-label" htmlFor="opis-grupe">
-              Opis <span className="form-label__opciono">(opciono)</span>
+            <label className="form-label" htmlFor="group-description">
+              Opis <span className="form-label__optional">(opciono)</span>
             </label>
             <input
-              id="opis-grupe"
+              id="group-description"
               className="form-input"
               type="text"
-              value={noviOpis}
-              onChange={(e) => setNoviOpis(e.target.value)}
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
               placeholder="npr. Uzrast 2011. godišta"
-              disabled={cuvanje}
+              disabled={saving}
             />
           </div>
 
-          {greskaForme && (
-            <p className="form-error">{greskaForme}</p>
-          )}
+          {formError && <p className="form-error">{formError}</p>}
 
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={cuvanje}
-          >
-            {cuvanje ? 'Dodavanje...' : 'Dodaj grupu'}
+          <button className="btn btn-primary" type="submit" disabled={saving}>
+            {saving ? 'Dodavanje...' : 'Dodaj grupu'}
           </button>
         </form>
       </div>

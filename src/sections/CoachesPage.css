@@ -1,0 +1,11 @@
+.coaches-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.coaches-page__hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}

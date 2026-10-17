@@ -13,40 +13,39 @@
   gap: 16px;
 }
 
-.app-header__naziv-kluba {
+.app-header__club-name {
   margin: 0 0 4px;
   font-size: 22px;
   font-weight: 700;
   color: var(--color-white);
 }
 
-.app-header__podnaslov {
+.app-header__subtitle {
   margin: 0;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.65);
 }
 
-/* ---- Navigacija ---- */
-.app-navigacija {
+/* ---- Navigation ---- */
+.app-nav {
   background-color: var(--color-bg);
   padding: 16px 32px 0;
   border-bottom: 1px solid var(--color-border);
 }
 
-.app-navigacija__lista {
+.app-nav__list {
   display: flex;
   gap: 6px;
   overflow-x: auto;
   padding-bottom: 16px;
-  /* Sakriva scrollbar na desktop-u, ali omogućava skrolovanje */
   scrollbar-width: none;
 }
 
-.app-navigacija__lista::-webkit-scrollbar {
+.app-nav__list::-webkit-scrollbar {
   display: none;
 }
 
-.tab-dugme {
+.tab-button {
   padding: 8px 18px;
   border-radius: 99px;
   border: 1.5px solid var(--color-border);
@@ -59,33 +58,33 @@
   transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 }
 
-.tab-dugme:hover {
+.tab-button:hover {
   background-color: var(--color-bg);
 }
 
-.tab-dugme--aktivan {
+.tab-button--active {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-white);
 }
 
-.tab-dugme--aktivan:hover {
+.tab-button--active:hover {
   background-color: var(--color-primary);
 }
 
-/* ---- Sadržaj ---- */
-.app-sadrzaj {
+/* ---- Content area ---- */
+.app-content {
   padding: 28px 32px;
   max-width: 900px;
 }
 
-.placeholder-sekcija {
+.placeholder-section {
   color: var(--color-text-secondary);
   padding: 40px 0;
 }
 
-/* ---- Dugme za odjavu ---- */
-.btn-odjava {
+/* ---- Sign out button ---- */
+.btn-sign-out {
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.4);
   color: rgba(255, 255, 255, 0.85);
@@ -97,20 +96,20 @@
   transition: background-color 0.15s;
 }
 
-.btn-odjava:hover {
+.btn-sign-out:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
 @media (max-width: 600px) {
   .app-header {
-    padding: 16px 16px;
+    padding: 16px;
   }
 
-  .app-navigacija {
+  .app-nav {
     padding: 12px 16px 0;
   }
 
-  .app-sadrzaj {
+  .app-content {
     padding: 20px 16px;
   }
 }

@@ -1,35 +1,32 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import GrupePage from '../sections/GrupePage';
+import CoachesPage from '../sections/CoachesPage';
 import './AppPage.css';
 
-// Lista tabova koji postoje u aplikaciji.
-// U ovoj fazi implementirana je samo sekcija Grupe.
-const TABOVI = [
-  { id: 'pregled',    naziv: 'Pregled' },
-  { id: 'grupe',      naziv: 'Grupe' },
-  { id: 'djeca',      naziv: 'Djeca' },
-  { id: 'dolasci',    naziv: 'Dolasci' },
-  { id: 'clanarine',  naziv: 'Članarine' },
-  { id: 'treneri',    naziv: 'Treneri' },
-  { id: 'postavke',   naziv: 'Postavke' },
+const TABS = [
+  { id: 'overview',     label: 'Pregled' },
+  { id: 'groups',       label: 'Grupe' },
+  { id: 'children',     label: 'Djeca' },
+  { id: 'attendance',   label: 'Dolasci' },
+  { id: 'memberships',  label: 'Članarine' },
+  { id: 'coaches',      label: 'Treneri' },
+  { id: 'settings',     label: 'Postavke' },
 ];
 
 function AppPage() {
   const { profile, signOut } = useAuth();
-  const [aktivniTab, setAktivniTab] = useState('grupe');
+  const [activeTab, setActiveTab] = useState('groups');
 
-  const imeKluba = profile?.clubs?.name ?? 'Klub';
-  const imeKorisnika = profile?.full_name ?? '';
+  const clubName = profile?.clubs?.name ?? 'Klub';
+  const userName = profile?.full_name ?? '';
 
-  function renderujSadrzaj() {
-    if (aktivniTab === 'grupe') {
-      return <GrupePage />;
-    }
+  function renderContent() {
+    if (activeTab === 'groups')  return <GrupePage />;
+    if (activeTab === 'coaches') return <CoachesPage />;
 
-    // Ostale sekcije će biti implementirane u narednim fazama
     return (
-      <div className="placeholder-sekcija">
+      <div className="placeholder-section">
         <p>Ova sekcija još nije implementirana.</p>
       </div>
     );
@@ -39,32 +36,32 @@ function AppPage() {
     <div className="app-page">
       <header className="app-header">
         <div className="app-header__info">
-          <h1 className="app-header__naziv-kluba">{imeKluba}</h1>
-          {imeKorisnika && (
-            <p className="app-header__podnaslov">vlasnik: {imeKorisnika}</p>
+          <h1 className="app-header__club-name">{clubName}</h1>
+          {userName && (
+            <p className="app-header__subtitle">vlasnik: {userName}</p>
           )}
         </div>
-        <button className="btn btn-odjava" onClick={signOut}>
+        <button className="btn-sign-out" onClick={signOut}>
           Odjavi se
         </button>
       </header>
 
-      <nav className="app-navigacija">
-        <div className="app-navigacija__lista">
-          {TABOVI.map((tab) => (
+      <nav className="app-nav">
+        <div className="app-nav__list">
+          {TABS.map((tab) => (
             <button
               key={tab.id}
-              className={`tab-dugme ${aktivniTab === tab.id ? 'tab-dugme--aktivan' : ''}`}
-              onClick={() => setAktivniTab(tab.id)}
+              className={`tab-button ${activeTab === tab.id ? 'tab-button--active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
             >
-              {tab.naziv}
+              {tab.label}
             </button>
           ))}
         </div>
       </nav>
 
-      <main className="app-sadrzaj">
-        {renderujSadrzaj()}
+      <main className="app-content">
+        {renderContent()}
       </main>
     </div>
   );
