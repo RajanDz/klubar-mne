@@ -32,27 +32,12 @@ function fmt(n) {
   return v % 1 === 0 ? v.toFixed(0) : v.toFixed(2);
 }
 
-function getInitials(name) {
-  return (name || '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
-}
-
-function nameHue(name) {
-  let h = 0;
-  for (let i = 0; i < (name || '').length; i++) h = (name.charCodeAt(i) + ((h << 5) - h)) | 0;
-  return Math.abs(h) % 360;
-}
-
 function formatTodayFull() {
   return new Date().toLocaleDateString('sr-Latn', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
 }
 
-function formatDateShort(iso) {
-  if (!iso) return 'Nije dolazio';
-  const [y, m, d] = iso.split('-');
-  return `${d}.${m}.${y}.`;
-}
 
 function currentMonthLabel() {
   const s = new Date().toLocaleDateString('sr-Latn', { month: 'long', year: 'numeric' });

@@ -118,7 +118,7 @@ function DjecaView() {
   /* ---- Load data on mount ---- */
   useEffect(() => {
     loadAll();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---- Reset page when filters change ---- */
   useEffect(() => {
@@ -129,7 +129,7 @@ function DjecaView() {
     if (!isOwner && groups.length === 1 && addGroups.length === 0) {
       setAddGroups([groups[0].id]);
     }
-  }, [groups]);
+  }, [groups]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function loadAll() {
     setLoading(true);
