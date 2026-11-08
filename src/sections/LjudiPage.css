@@ -1,0 +1,45 @@
+/* ============================================================
+   LjudiPage — container styles and sub-nav pills
+   ============================================================ */
+
+.ljudi-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.ljudi-pills {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.ljudi-pill {
+  padding: 7px 20px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  min-height: 36px;
+}
+
+.ljudi-pill:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.ljudi-pill--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.ljudi-pill--active:hover {
+  background: var(--primary-hover);
+  color: #fff;
+}

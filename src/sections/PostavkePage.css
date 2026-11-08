@@ -1,0 +1,384 @@
+/* ============================================================
+   PostavkePage — Settings
+   ============================================================ */
+
+.set-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding-bottom: var(--sp-8);
+}
+
+/* ---- 2-kolona grid ---- */
+
+.set-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-4);
+}
+
+@media (min-width: 700px) {
+  .set-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.set-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* ---- Kartica ---- */
+
+.set-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.set-card-title {
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---- Polja forme ---- */
+
+.set-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+/* ---- Footer sa dugmetom ---- */
+
+.set-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-3);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border);
+  margin-top: var(--sp-1);
+}
+
+/* ---- Poruke (ok / error) ---- */
+
+.set-msg {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.set-msg--ok    { color: #16a34a; }
+.set-msg--error { color: var(--error); }
+
+/* ---- Drag & Drop zona ---- */
+
+.set-dropzone {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-8) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+  background: var(--surface-2);
+}
+
+.set-dropzone:hover,
+.set-dropzone--over {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.set-dropzone__icon {
+  color: var(--text-subtle);
+  margin-bottom: var(--sp-1);
+}
+
+.set-dropzone__text {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.set-dropzone__hint {
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+  margin: 0;
+}
+
+/* ---- Logo preview ---- */
+
+.set-logo-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.set-logo-img {
+  max-width: 140px;
+  max-height: 140px;
+  object-fit: contain;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: var(--sp-2);
+  background: var(--surface);
+}
+
+.set-logo-remove {
+  font-size: var(--text-sm);
+}
+
+/* ============================================================
+   Tema — blokovi unutar kartice
+   ============================================================ */
+
+.set-sep {
+  height: 1px;
+  background: var(--border);
+  margin: var(--sp-1) 0;
+}
+
+.set-theme-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.set-theme-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.set-theme-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+/* ---- Reset icon button ---- */
+
+.set-reset-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.set-reset-btn:hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* ---- Paleta boja ---- */
+
+.set-color-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.set-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.12s, box-shadow 0.12s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.set-swatch:hover {
+  transform: scale(1.12);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.set-swatch--active {
+  border-color: var(--primary);
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Custom picker swatch (zadnji u redu) */
+.set-swatch--picker {
+  background: var(--surface-2);
+  border: 2px dashed var(--border-strong);
+  color: var(--text-muted);
+  box-shadow: none;
+}
+
+.set-swatch--picker:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.set-swatch--picker.set-swatch--active {
+  border-style: solid;
+}
+
+/* Skriveni input[type=color] unutar picker swatch-a */
+.set-hidden-picker {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- Segmented control ---- */
+
+.set-seg {
+  display: inline-flex;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border-strong);
+  overflow: hidden;
+  align-self: flex-start;
+}
+
+.set-seg-btn {
+  padding: 7px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+  min-height: 36px;
+  border-right: 1px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.set-seg-btn:last-child {
+  border-right: none;
+}
+
+.set-seg-btn:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.set-seg-btn--active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.set-seg-btn--active:hover {
+  background: var(--primary-hover);
+  color: #fff;
+}
+
+.set-seg-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ---- Preview traka ---- */
+
+.set-preview-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-3) var(--sp-4);
+  margin-top: var(--sp-1);
+}
+
+.set-preview-chip {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.set-preview-chip--bg {
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.set-preview-chip--bg span {
+  color: var(--text);
+}
+
+.set-preview-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-left: var(--sp-1);
+}
+
+/* ============================================================
+   Globalni reset (dno stranice)
+   ============================================================ */
+
+.set-global-reset {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border);
+}
+
+.set-global-reset__hint {
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
+
+/* ---- btn-outline-danger (ako nije globalno) ---- */
+
+.btn-outline-danger {
+  background: transparent;
+  border: 1.5px solid var(--error);
+  color: var(--error);
+  min-height: 40px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-outline-danger:hover {
+  background: var(--error-bg);
+}

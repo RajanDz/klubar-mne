@@ -1,0 +1,378 @@
+/* ============================================================
+   TreninziPage
+   ============================================================ */
+
+.t-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* ============================================================
+   Sub-pills (Treninzi / Prisustvo)
+   ============================================================ */
+
+.t-pills {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.t-pill {
+  padding: 7px 20px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  min-height: 36px;
+}
+
+.t-pill:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.t-pill--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.t-pill--active:hover {
+  background: var(--primary-hover);
+  color: #fff;
+}
+
+/* ============================================================
+   Toggle
+   ============================================================ */
+
+.t-toggle {
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--border-strong);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.t-toggle--on {
+  background: var(--primary);
+}
+
+.t-toggle__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+  display: block;
+}
+
+.t-toggle--on .t-toggle__knob {
+  transform: translateX(20px);
+}
+
+.t-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   Initials circle
+   ============================================================ */
+
+.t-initials {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Chip
+   ============================================================ */
+
+.t-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Child row in form
+   ============================================================ */
+
+.t-child-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  min-height: 52px;
+}
+
+.t-child-row:last-child {
+  border-bottom: none;
+}
+
+.t-child-name {
+  flex: 1;
+  font-size: var(--text-md);
+  font-weight: 500;
+}
+
+/* ============================================================
+   Summary row
+   ============================================================ */
+
+.t-summary {
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: var(--sp-2);
+}
+
+/* ============================================================
+   Owner expanded rows
+   ============================================================ */
+
+.t-owner-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  min-height: 44px;
+}
+
+.t-owner-row:last-child {
+  border-bottom: none;
+}
+
+.t-mark-present {
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.t-mark-absent {
+  color: var(--error);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* ============================================================
+   Section title
+   ============================================================ */
+
+.t-section-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* ============================================================
+   Form header
+   ============================================================ */
+
+.t-form-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 2px;
+}
+
+.t-form-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0 0 var(--sp-4);
+}
+
+/* ============================================================
+   Training list card row
+   ============================================================ */
+
+.t-training-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.t-training-row:active {
+  opacity: 0.8;
+}
+
+/* ============================================================
+   Form actions
+   ============================================================ */
+
+.t-form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-5);
+}
+
+/* ============================================================
+   Owner card expanded section
+   ============================================================ */
+
+.t-expanded {
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================================
+   Placeholder / loading
+   ============================================================ */
+
+.t-placeholder {
+  padding: var(--sp-10) 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-base);
+}
+
+.t-loading {
+  padding: var(--sp-10) 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-base);
+}
+
+/* ============================================================
+   List / Controls layout
+   ============================================================ */
+
+.t-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.t-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+/* ============================================================
+   Coach select row
+   ============================================================ */
+
+.t-coach-select {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+/* ============================================================
+   Full-width select override
+   ============================================================ */
+
+.t-select-full {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* ============================================================
+   Add-training inline card
+   ============================================================ */
+
+.t-add-card {
+  margin-bottom: var(--sp-4);
+  border: 1.5px solid var(--primary);
+}
+
+/* ============================================================
+   Upozorenja prisustva (PrisustvoTab)
+   ============================================================ */
+
+.att-warn-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.att-warn-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 14px var(--sp-4);
+  min-height: 68px;
+}
+
+.att-warn-row--sep {
+  border-bottom: 1px solid var(--border);
+}
+
+.att-warn-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.att-warn-name {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.att-warn-group {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.att-warn-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: var(--text-xs, 12px);
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}

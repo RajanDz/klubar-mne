@@ -1,0 +1,543 @@
+/* ============================================================
+   NovacPage — zajednički wrapper i tab navigacija
+   ============================================================ */
+
+.novac-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.novac-tabs {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.novac-tab {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 var(--sp-4);
+  border-radius: 22px;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.novac-tab:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.novac-tab--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.novac-tab--active:hover {
+  background: var(--primary-hover);
+}
+
+
+/* ============================================================
+   ClanarinaTab
+   ============================================================ */
+
+.cla-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+/* ---- Navigacija po mjesecima ---- */
+
+.cla-month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 4px var(--sp-2);
+}
+
+.cla-month-btn {
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.cla-month-btn:hover {
+  background: var(--surface-1);
+  color: var(--text);
+}
+
+.cla-month-label {
+  flex: 1;
+  text-align: center;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---- Filteri ---- */
+
+.cla-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.cla-fee-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.cla-fee-row .form-label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.cla-fee-input {
+  width: 100px !important;
+}
+
+/* ---- Status pills ---- */
+
+.cla-status-pills {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.cla-status-pill {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 22px;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.cla-status-pill:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.cla-status-pill--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.cla-status-pill--active:hover {
+  background: var(--primary-hover);
+}
+
+/* ---- Lista ---- */
+
+.cla-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cla-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: 14px var(--sp-4);
+  min-height: 72px;
+}
+
+.cla-row--sep {
+  border-bottom: 1px solid var(--border);
+}
+
+.cla-row--locked {
+  opacity: 0.75;
+}
+
+/* Inicijali */
+
+.cla-initials {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* Info stupac */
+
+.cla-row__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cla-row__name-line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.cla-row__name {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+}
+
+/* Editabilno polje iznosa (vidljivo kad je plaćeno) */
+
+.cla-row__amount-input {
+  width: 64px;
+  height: 32px;
+  padding: 4px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-1);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-align: right;
+  transition: border-color 0.15s;
+  -moz-appearance: textfield;
+}
+
+.cla-row__amount-input::-webkit-outer-spin-button,
+.cla-row__amount-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.cla-row__amount-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.cla-row__amount-eur {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.cla-row__amount-locked {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Status linija */
+
+.cla-row__status {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.cla-row__status--paid {
+  color: #16a34a;
+}
+
+.cla-row__status--unpaid {
+  color: #92400e;
+}
+
+/* Naziv grupe (Sve grupe prikaz) */
+
+.cla-row__group {
+  font-size: var(--text-xs, 12px);
+  color: var(--text-muted);
+}
+
+/* Poruka o zaključanosti */
+
+.cla-row__locked-msg {
+  font-size: var(--text-xs, 12px);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ---- Toggle prekidač ---- */
+
+.pay-toggle {
+  flex-shrink: 0;
+  width: 50px;
+  height: 28px;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-top: -8px;
+}
+
+.pay-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pay-toggle__knob {
+  position: relative;
+  width: 50px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--border-strong);
+  transition: background 0.2s;
+  pointer-events: none;
+}
+
+.pay-toggle__knob::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.pay-toggle--on .pay-toggle__knob {
+  background: #16a34a;
+}
+
+.pay-toggle--on .pay-toggle__knob::after {
+  transform: translateX(22px);
+}
+
+/* ---- Sažetak ---- */
+
+.cla-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.cla-progress {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cla-progress__fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.cla-summary__text {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0;
+  text-align: center;
+}
+
+
+/* ============================================================
+   PredajeTab
+   ============================================================ */
+
+.pre-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+/* ---- Kutija "Kod mene" ---- */
+
+.pre-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.pre-box__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.pre-box__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pre-box__amount {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+.pre-box__desc {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---- Naslov sekcije ---- */
+
+.pre-hist-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ---- Kartica predaje ---- */
+
+.pre-handover-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.pre-handover-card--pending {
+  border-color: var(--primary);
+}
+
+.pre-handover-card__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.pre-handover-card__row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pre-handover-card__coach {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pre-handover-card__date {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.pre-handover-card__amount {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* ---- Badge ---- */
+
+.pre-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: var(--text-xs, 12px);
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.pre-badge--pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.pre-badge--confirmed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* ---- Dugmad u karticama ---- */
+
+.pre-withdraw-btn,
+.pre-confirm-btn {
+  align-self: flex-end;
+}
+
+/* ---- Kontrole istorije ---- */
+
+.pre-hist-controls {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.pre-hist-month {
+  flex: 1;
+  min-height: 44px;
+}
+
+.pre-hist-all--active {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.pre-hist-stat {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.pre-hist-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}

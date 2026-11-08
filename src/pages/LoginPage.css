@@ -35,3 +35,30 @@
   font-size: var(--text-sm);
   color: var(--text-muted);
 }
+
+.login-invite-toggle {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.login-invite-toggle__btn {
+  background: none;
+  border: none;
+  color: var(--color-primary, #3b82f6);
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+.login-back {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary, #64748b);
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

@@ -1,0 +1,56 @@
+/* ============================================================
+   TreneriView — coaches list and add form
+   Uses existing global styles (card, item-list, group-tags, etc.)
+   ============================================================ */
+
+.treneri-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.treneri-add-header {
+  padding: var(--sp-4) var(--sp-6);
+}
+
+.treneri-add-form {
+  border-top: 1px solid var(--border);
+}
+
+.invite-code-box {
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: #f0f9ff;
+  border: 2px dashed #38bdf8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.invite-code-box__code {
+  font-family: monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #0369a1;
+}
+
+.invite-code-box__meta {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.coach-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 600;
+}
+
+.coach-badge--active {
+  background: #dcfce7;
+  color: #166534;
+}

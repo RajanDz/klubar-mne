@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { applyThemeVars } from '../lib/theme';
 
 const AuthContext = createContext(null);
 
@@ -41,17 +42,28 @@ export function AuthProvider({ children }) {
     setProfileError(null);
     const { data, error } = await supabase
       .from('users')
-      .select('id, club_id, full_name, email, role, clubs(id, name)')
+      .select('id, club_id, full_name, email, coach_id, clubs(id, name, fee, sport, logo_url, theme), roles(id, value)')
       .eq('id', userId)
       .single();
 
     if (error) {
-      setProfileError('Korisnički nalog nije povezan ni sa jednim klubom.');
-      setProfile(null);
+      console.error('Profile load error:', error);
+      if (error.code === 'PGRST116') {
+        setProfile(null);
+        setProfileError(null);
+      } else {
+        setProfileError('Korisnički nalog nije povezan ni sa jednim klubom.');
+        setProfile(null);
+      }
     } else {
       setProfile(data);
+      applyThemeVars(data.clubs?.theme ?? {});
     }
     setLoading(false);
+  }
+
+  async function refreshProfile() {
+    if (user) await loadProfile(user.id);
   }
 
   async function signOut() {
@@ -59,7 +71,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, profileError, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, profileError, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,12 +3,15 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import './CoachesPage.css';
 
+const PER_PAGE = 10;
+
 function CoachesPage() {
   const { profile } = useAuth();
 
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [showForm, setShowForm] = useState(false);
   const [newName, setNewName] = useState('');
@@ -28,12 +31,13 @@ function CoachesPage() {
     const { data, error: fetchError } = await supabase
       .from('coaches')
       .select('id, full_name, phone, email, created_at, coach_groups(group_id, groups(id, name))')
-      .order('created_at', { ascending: true });
+      .order('full_name', { ascending: true });
 
     if (fetchError) {
       setError('Nije moguće učitati trenere. Pokušajte ponovo.');
     } else {
       setCoaches(data);
+      setCurrentPage(p => Math.min(p, Math.max(1, Math.ceil(data.length / PER_PAGE))));
     }
 
     setLoading(false);
@@ -67,6 +71,7 @@ function CoachesPage() {
       setNewPhone('');
       setNewEmail('');
       setShowForm(false);
+      setCurrentPage(1);
       await loadCoaches();
     }
 
@@ -106,6 +111,9 @@ function CoachesPage() {
       </div>
     );
   }
+
+  const totalPages = Math.max(1, Math.ceil(coaches.length / PER_PAGE));
+  const pageCoaches = coaches.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
   return (
     <div className="coaches-page">
@@ -198,42 +206,62 @@ function CoachesPage() {
             </p>
           </div>
         ) : (
-          <ul className="item-list">
-            {coaches.map((coach, index) => (
-              <li
-                key={coach.id}
-                className={`item-list__row ${index < coaches.length - 1 ? 'item-list__row--separator' : ''}`}
-              >
-                <div className="item-list__info">
-                  <span className="item-list__name">{coach.full_name}</span>
-                  {coach.phone && (
-                    <span className="item-list__description">{coach.phone}</span>
-                  )}
-                  {coach.coach_groups?.length > 0 && (
-                    <div className="group-tags">
-                      {coach.coach_groups.map((cg) => (
-                        <span key={cg.group_id} className="group-tag">
-                          {cg.groups?.name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <button
-                  className="btn btn-outline-danger"
-                  onClick={() => handleDeleteCoach(coach.id, coach.full_name)}
-                >
-                  Obriši
-                </button>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="item-list">
+                  {pageCoaches.map((coach, index) => (
+                    <li
+                      key={coach.id}
+                      className={`item-list__row ${index < pageCoaches.length - 1 ? 'item-list__row--separator' : ''}`}
+                    >
+                      <div className="item-list__info">
+                        <span className="item-list__name">{coach.full_name}</span>
+                        {coach.phone && (
+                          <span className="item-list__description">{coach.phone}</span>
+                        )}
+                        {coach.coach_groups?.length > 0 && (
+                          <div className="group-tags">
+                            {coach.coach_groups.map((cg) => (
+                              <span key={cg.group_id} className="group-tag">
+                                {cg.groups?.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        className="btn btn-outline-danger"
+                        onClick={() => handleDeleteCoach(coach.id, coach.full_name)}
+                      >
+                        Obriši
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+
+                {totalPages > 1 && (
+                  <div className="pagination">
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => setCurrentPage(p => p - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      ← Prethodna
+                    </button>
+                    <span className="pagination__info">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => setCurrentPage(p => p + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Sljedeća →
+                    </button>
+                  </div>
+                )}
+          </>
         )}
       </div>
-
-      <p className="coaches-page__hint">
-        Trenera dodijeli grupi na kartici Grupe.
-      </p>
 
     </div>
   );

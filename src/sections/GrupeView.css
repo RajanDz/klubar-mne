@@ -1,0 +1,170 @@
+/* ============================================================
+   GrupeView — list of groups with inline edit controls
+   ============================================================ */
+
+.grupe-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* ---- Add form toggle ---- */
+
+.grupe-add-header {
+  padding: var(--sp-4) var(--sp-6);
+}
+
+.grupe-add-form {
+  border-top: 1px solid var(--border);
+}
+
+/* ---- Row (one group) ---- */
+
+.grupe-row {
+  padding: var(--sp-4) var(--sp-6);
+}
+
+.grupe-row__main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.grupe-row__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+
+.grupe-row__fee-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.grupe-fee-input {
+  width: 90px;
+  height: 38px;
+}
+
+.grupe-coach-select {
+  max-width: 160px;
+  height: 38px;
+}
+
+/* ---- Schedule panel (day pills + time) ---- */
+
+.grupe-schedule-panel {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.grupe-day-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+.grupe-day-pill {
+  padding: 6px 12px;
+  min-height: 36px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.grupe-day-pill:hover {
+  background: var(--surface-2);
+}
+
+.grupe-day-pill--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.grupe-time-input {
+  max-width: 130px;
+  height: 44px;
+}
+
+/* ---- Mobile tweaks ---- */
+
+@media (max-width: 600px) {
+  .grupe-row {
+    padding: var(--sp-3) var(--sp-4);
+  }
+  .grupe-row__actions {
+    width: 100%;
+  }
+  .grupe-fee-input {
+    width: 100%;
+  }
+}
+
+/* ---- Coach picker dropdown ---- */
+
+.grupe-coach-picker {
+  position: relative;
+}
+
+.grupe-coach-picker__trigger--open {
+  background: var(--surface-2);
+}
+
+.grupe-coach-picker__panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 50;
+  min-width: 200px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: var(--sp-1) 0;
+}
+
+.grupe-coach-picker__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-4);
+  min-height: 44px;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  transition: background 0.1s;
+}
+
+.grupe-coach-picker__row:hover {
+  background: var(--surface-2);
+}
+
+.grupe-coach-picker__row input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+}
+
+@media (max-width: 600px) {
+  .grupe-coach-picker__panel {
+    right: 0;
+    left: auto;
+  }
+}
