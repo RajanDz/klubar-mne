@@ -76,7 +76,7 @@ function AppPage() {
   const { profile, signOut } = useAuth();
 
   const isTrener = profile?.roles?.value === 'trener';
-  const [activeTab, setActiveTab] = useState(isTrener ? 'treninzi' : 'people');
+  const [activeTab, setActiveTab] = useState('overview');
 
   const clubName = profile?.clubs?.name ?? 'Klub';
   const userName = profile?.full_name ?? '';
@@ -107,11 +107,11 @@ function AppPage() {
 
   /* Nav items config */
   const ALL_NAV_ITEMS = [
-    { id: 'overview',    label: 'Pregled',   icon: <IconHome />,     roles: ['owner', 'coordinator'] },
+    { id: 'overview',    label: 'Pregled',   icon: <IconHome />,     roles: ['owner', 'coordinator', 'trener'] },
     { id: 'people',      label: 'Ljudi',     icon: <IconPeople />,   roles: ['owner', 'coordinator'] },
     { id: 'treninzi',    label: 'Treninzi',  icon: <IconCalendar />, roles: ['owner', 'coordinator', 'trener'] },
     { id: 'memberships', label: 'Novac',     icon: <IconCard />,     roles: ['owner', 'coordinator', 'trener'] },
-    { id: 'settings',    label: 'Postavke',  icon: <IconSettings />, roles: ['owner', 'coordinator'] },
+    { id: 'settings',    label: 'Postavke',  icon: <IconSettings />, roles: ['owner', 'coordinator', 'trener'] },
   ];
 
   const userRole = profile?.roles?.value ?? '';

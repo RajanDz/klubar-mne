@@ -132,7 +132,8 @@ function SegmentedControl({ value, onChange, options }) {
 
 function PostavkePage() {
   const { profile, refreshProfile } = useAuth();
-  const club = profile?.clubs ?? {};
+  const club     = profile?.clubs ?? {};
+  const isTrener = profile?.roles?.value === 'trener';
 
   /* ---- Podaci o klubu ---- */
   const [clubName,  setClubName]  = useState(club.name  ?? '');
@@ -267,10 +268,10 @@ function PostavkePage() {
   return (
     <div className="set-page">
 
-      <div className="set-grid">
+      <div className={`set-grid ${isTrener ? 'set-grid--single' : ''}`}>
 
-        {/* ========== Lijeva kolona ========== */}
-        <div className="set-col">
+        {/* ========== Lijeva kolona (samo vlasnik/koordinator) ========== */}
+        {!isTrener && <div className="set-col">
 
           {/* Podaci o klubu */}
           <div className="card card__body set-card">
@@ -359,7 +360,7 @@ function PostavkePage() {
             />
           </div>
 
-        </div>
+        </div>}
 
         {/* ========== Desna kolona ========== */}
         <div className="set-col">

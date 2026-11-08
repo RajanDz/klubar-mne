@@ -155,6 +155,7 @@ function IconDumbbell() {
 
 function OverviewPage({ onNavigate }) {
   const { profile } = useAuth();
+  const isTrener = profile?.roles?.value === 'trener';
 
   const [loading,     setLoading]     = useState(true);
 
@@ -176,6 +177,78 @@ function OverviewPage({ onNavigate }) {
     const period     = currentMonthPeriod();
     const inactive60 = dateDaysAgo(60);
 
+    if (isTrener) {
+      await loadTrenerDashboard(today, inactive60);
+    } else {
+      await loadOwnerDashboard(today, period, inactive60);
+    }
+
+    setLoading(false);
+  }
+
+  async function loadTrenerDashboard(today, inactive60) {
+    const coachId = profile?.coach_id;
+
+    const { data: coachGroupRows } = await supabase
+      .from('coach_groups')
+      .select('group_id, groups(id, name)')
+      .eq('coach_id', coachId);
+
+    const myGroupIds = (coachGroupRows || []).map(cg => cg.group_id);
+    const myGroups   = (coachGroupRows || []).map(cg => cg.groups).filter(Boolean);
+    setGroups(myGroups);
+
+    if (myGroupIds.length === 0) return;
+
+    const [todayAttRes, cgRes, inactiveAttRes, coachMoneyRes] = await Promise.all([
+      supabase.from('attendance')
+        .select('child_id, group_id, status, groups(id, name)')
+        .eq('date', today)
+        .in('group_id', myGroupIds),
+
+      supabase.from('children_groups')
+        .select('group_id, child_id, children(id, arch)')
+        .in('group_id', myGroupIds),
+
+      supabase.from('attendance')
+        .select('child_id, group_id, date, status, children(id, full_name, arch), groups(id, name)')
+        .gte('date', inactive60)
+        .in('group_id', myGroupIds)
+        .order('date', { ascending: false }),
+
+      supabase.from('memberships')
+        .select('amount')
+        .eq('coach_id', coachId)
+        .is('handover_id', null)
+        .eq('status', 'paid'),
+    ]);
+
+    const todayMap = {};
+    for (const row of todayAttRes.data || []) {
+      if (!todayMap[row.group_id]) todayMap[row.group_id] = {
+        groupId: row.group_id, groupName: row.groups?.name ?? '', present: 0, total: 0, coachName: null,
+      };
+      todayMap[row.group_id].total++;
+      if (row.status === 'present') todayMap[row.group_id].present++;
+    }
+    setTodayTrainings(Object.values(todayMap));
+
+    const gMap = {};
+    for (const row of cgRes.data || []) {
+      if (row.children?.arch) continue;
+      gMap[row.group_id] = (gMap[row.group_id] || 0) + 1;
+    }
+    setGroupMemberMap(gMap);
+
+    const coachMap = {};
+    for (const cg of coachGroupRows || []) coachMap[cg.group_id] = profile?.full_name ?? '—';
+    setInactiveList(computeInactiveChildren(inactiveAttRes.data || [], coachMap));
+
+    const money = (coachMoneyRes.data || []).reduce((s, m) => s + (parseFloat(m.amount) || 0), 0);
+    setCoachMoney(money);
+  }
+
+  async function loadOwnerDashboard(today, period, inactive60) {
     const [
       todayAttRes,
       allChildrenRes,
@@ -220,36 +293,27 @@ function OverviewPage({ onNavigate }) {
         .order('date', { ascending: false }),
     ]);
 
-    /* 1 — Today's trainings (distinct groups + present/total) */
     const todayMap = {};
     for (const row of todayAttRes.data || []) {
       if (!todayMap[row.group_id]) todayMap[row.group_id] = {
-        groupId:   row.group_id,
-        groupName: row.groups?.name ?? '',
-        present:   0,
-        total:     0,
+        groupId: row.group_id, groupName: row.groups?.name ?? '', present: 0, total: 0,
       };
       todayMap[row.group_id].total++;
       if (row.status === 'present') todayMap[row.group_id].present++;
     }
 
-    /* 2 — Active children + unpaid count */
     const activeChildren = (allChildrenRes.data || []).filter(c => !c.arch);
-    const activeCnt  = activeChildren.length;
-    const paidSet    = new Set((paidMemsRes.data || []).map(m => m.child_id));
-    const paidCnt    = paidSet.size;
-    setActiveCount(activeCnt);
+    const paidSet = new Set((paidMemsRes.data || []).map(m => m.child_id));
+    const paidCnt = paidSet.size;
+    setActiveCount(activeChildren.length);
     setPaidCount(paidCnt);
-    setUnpaidCount(Math.max(0, activeCnt - paidCnt));
+    setUnpaidCount(Math.max(0, activeChildren.length - paidCnt));
 
-    /* 3 — Coach money */
     const money = (coachMoneyRes.data || []).reduce((s, m) => s + (parseFloat(m.amount) || 0), 0);
     setCoachMoney(money);
 
-    /* 4 — Groups */
     setGroups(groupsRes.data || []);
 
-    /* 6 — Group member counts (non-archived) */
     const gMap = {};
     for (const row of cgRes.data || []) {
       if (row.children?.arch) continue;
@@ -257,26 +321,21 @@ function OverviewPage({ onNavigate }) {
     }
     setGroupMemberMap(gMap);
 
-    /* 7 — Coach per group */
     const coachMap = {};
     for (const row of coachGroupsRes.data || []) {
       coachMap[row.group_id] = row.coaches?.full_name ?? null;
     }
 
-    /* 8 — Add coach to today's list */
     setTodayTrainings(
       Object.values(todayMap).map(t => ({ ...t, coachName: coachMap[t.groupId] ?? null }))
     );
 
-    /* 9 — Inactive children */
     setInactiveList(computeInactiveChildren(inactiveAttRes.data || [], coachMap));
-
-    setLoading(false);
   }
 
   const pieData = [
-    { name: 'Platili',      value: paidCount   },
-    { name: 'Nisu platili', value: unpaidCount  },
+    { name: 'Platili',      value: paidCount  },
+    { name: 'Nisu platili', value: unpaidCount },
   ];
   const PIE_COLORS = ['#2563eb', '#f59e0b'];
 
@@ -327,85 +386,117 @@ function OverviewPage({ onNavigate }) {
       </section>
 
       {/* ---- Stat cards ---- */}
-      <div className="ov-stats-grid">
-        <StatCard
-          label="Aktivni članovi"
-          value={activeCount}
-          icon={<IconUsers />}
-          variant="blue"
-          loading={loading}
-          onClick={() => onNavigate?.('people')}
-        />
-        <StatCard
-          label="Neplaćene članarine"
-          value={unpaidCount}
-          icon={<IconCreditCard />}
-          variant={unpaidCount > 0 ? 'orange' : 'blue'}
-          loading={loading}
-          onClick={() => onNavigate?.('memberships')}
-        />
-        <StatCard
-          label="Neaktivna djeca"
-          value={inactiveList.length}
-          icon={<IconAlert />}
-          variant={inactiveList.length > 0 ? 'orange' : 'blue'}
-          loading={loading}
-          onClick={() => onNavigate?.('treninzi')}
-        />
-        <StatCard
-          label="Novac kod trenera"
-          value={`${fmt(coachMoney)} €`}
-          icon={<IconBanknote />}
-          variant={coachMoney > 0 ? 'orange' : 'blue'}
-          loading={loading}
-          onClick={() => onNavigate?.('memberships')}
-        />
-      </div>
+      {isTrener ? (
+        <div className="ov-stats-grid">
+          <StatCard
+            label="Moje grupe"
+            value={groups.length}
+            icon={<IconUsers />}
+            variant="blue"
+            loading={loading}
+          />
+          <StatCard
+            label="Neaktivna djeca"
+            value={inactiveList.length}
+            icon={<IconAlert />}
+            variant={inactiveList.length > 0 ? 'orange' : 'blue'}
+            loading={loading}
+            onClick={() => onNavigate?.('treninzi')}
+          />
+          <StatCard
+            label="Novac kod mene"
+            value={`${fmt(coachMoney)} €`}
+            icon={<IconBanknote />}
+            variant={coachMoney > 0 ? 'orange' : 'blue'}
+            loading={loading}
+            onClick={() => onNavigate?.('memberships')}
+          />
+        </div>
+      ) : (
+        <div className="ov-stats-grid">
+          <StatCard
+            label="Aktivni članovi"
+            value={activeCount}
+            icon={<IconUsers />}
+            variant="blue"
+            loading={loading}
+            onClick={() => onNavigate?.('people')}
+          />
+          <StatCard
+            label="Neplaćene članarine"
+            value={unpaidCount}
+            icon={<IconCreditCard />}
+            variant={unpaidCount > 0 ? 'orange' : 'blue'}
+            loading={loading}
+            onClick={() => onNavigate?.('memberships')}
+          />
+          <StatCard
+            label="Neaktivna djeca"
+            value={inactiveList.length}
+            icon={<IconAlert />}
+            variant={inactiveList.length > 0 ? 'orange' : 'blue'}
+            loading={loading}
+            onClick={() => onNavigate?.('treninzi')}
+          />
+          <StatCard
+            label="Novac kod trenera"
+            value={`${fmt(coachMoney)} €`}
+            icon={<IconBanknote />}
+            variant={coachMoney > 0 ? 'orange' : 'blue'}
+            loading={loading}
+            onClick={() => onNavigate?.('memberships')}
+          />
+        </div>
+      )}
 
-      {/* ---- Membership chart ---- */}
-      <div className="card ov-chart-card">
-        <p className="ov-chart-title">Članarine — {currentMonthLabel()}</p>
-        {!loading && (paidCount + unpaidCount > 0) ? (
-          <ResponsiveContainer width="100%" height={220}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="45%"
-                innerRadius={56}
-                outerRadius={84}
-                paddingAngle={3}
-                dataKey="value"
-              >
-                {pieData.map((_, i) => (
-                  <Cell key={i} fill={PIE_COLORS[i]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(v, n) => [v, n]} />
-              <Legend
-                iconType="circle"
-                iconSize={8}
-                formatter={v => (
-                  <span style={{ fontSize: 12, color: '#64748b' }}>{v}</span>
-                )}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        ) : (
-          <div className="ov-chart-empty">
-            {loading ? 'Učitavanje...' : 'Nema podataka za ovaj mjesec.'}
-          </div>
-        )}
-      </div>
+      {/* ---- Membership chart (samo za vlasnika/koordinatora) ---- */}
+      {!isTrener && (
+        <div className="card ov-chart-card">
+          <p className="ov-chart-title">Članarine — {currentMonthLabel()}</p>
+          {!loading && (paidCount + unpaidCount > 0) ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="45%"
+                  innerRadius={56}
+                  outerRadius={84}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {pieData.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(v, n) => [v, n]} />
+                <Legend
+                  iconType="circle"
+                  iconSize={8}
+                  formatter={v => (
+                    <span style={{ fontSize: 12, color: '#64748b' }}>{v}</span>
+                  )}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="ov-chart-empty">
+              {loading ? 'Učitavanje...' : 'Nema podataka za ovaj mjesec.'}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ---- Grupe ---- */}
       <section className="ov-section">
-        <h2 className="ov-section-title">Grupe</h2>
+        <h2 className="ov-section-title">
+          {isTrener ? 'Moje grupe' : 'Grupe'}
+        </h2>
         {loading ? (
           <div className="ov-skeleton" style={{ height: 88 }} />
         ) : groups.length === 0 ? (
           <div className="card" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            Nema kreiranih grupa.
+            {isTrener ? 'Nije ti dodjeljena nijedna grupa.' : 'Nema kreiranih grupa.'}
           </div>
         ) : (
           <div className="ov-groups-grid">
@@ -413,7 +504,7 @@ function OverviewPage({ onNavigate }) {
               <div
                 key={g.id}
                 className="ov-group-card"
-                onClick={() => onNavigate?.('people')}
+                onClick={() => onNavigate?.(isTrener ? 'treninzi' : 'people')}
               >
                 <span className="ov-group-card__count">{groupMemberMap[g.id] ?? 0}</span>
                 <span className="ov-group-card__name">{g.name}</span>

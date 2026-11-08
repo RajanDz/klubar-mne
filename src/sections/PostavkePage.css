@@ -24,6 +24,11 @@
   }
 }
 
+.set-grid--single {
+  grid-template-columns: 1fr !important;
+  max-width: 520px;
+}
+
 .set-col {
   display: flex;
   flex-direction: column;
