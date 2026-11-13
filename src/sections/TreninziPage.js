@@ -510,7 +510,7 @@ function VlasnikView({ initialCoachId = null }) {
     }
 
     loadCoaches();
-  }, []);
+  }, [initialCoachId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Load data when selected coach changes */
   useEffect(() => {
