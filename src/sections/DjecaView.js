@@ -24,6 +24,29 @@ function nameHue(name) {
   return Math.abs(h) % 360;
 }
 
+function currentYM() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function shiftMonth(ym, delta) {
+  const [y, m] = ym.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatMonthLabel(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  const s = new Date(y, m - 1, 1).toLocaleDateString('sr-Latn', { month: 'long', year: 'numeric' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function formatShortDate(iso) {
+  const [, m, d] = iso.split('-');
+  const months = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+  return `${parseInt(d)}. ${months[parseInt(m) - 1]}`;
+}
+
 function formatDateDisplay(iso) {
   if (!iso) return '—';
   const [y, m, d] = iso.split('-');
@@ -111,9 +134,11 @@ function DjecaView() {
   const [editSaving, setEditSaving] = useState(false);
 
   /* ---- Detail extras ---- */
-  const [attendance, setAttendance] = useState([]);
   const [memberships, setMemberships] = useState([]);
-  const [detailLoading, setDetailLoading] = useState(false);
+  const [memLoading, setMemLoading] = useState(false);
+  const [attMonth, setAttMonth] = useState(currentYM);
+  const [attMonthData, setAttMonthData] = useState([]);
+  const [attMonthLoading, setAttMonthLoading] = useState(false);
 
   /* ---- Load data on mount ---- */
   useEffect(() => {
@@ -184,25 +209,41 @@ function DjecaView() {
   }
 
   async function loadChildDetail(child) {
-    setDetailLoading(true);
-    const [attRes, memRes] = await Promise.all([
-      supabase
-        .from('attendance')
-        .select('id, date, status, group_id')
-        .eq('child_id', child.id)
-        .order('date', { ascending: false })
-        .limit(15),
-      supabase
-        .from('memberships')
-        .select('id, period, amount, status, payment_date')
-        .eq('child_id', child.id)
-        .order('period', { ascending: false })
-        .limit(12),
-    ]);
-    setAttendance(attRes.data || []);
-    setMemberships(memRes.data || []);
-    setDetailLoading(false);
+    setMemLoading(true);
+    const { data } = await supabase
+      .from('memberships')
+      .select('id, period, amount, status, payment_date')
+      .eq('child_id', child.id)
+      .order('period', { ascending: false })
+      .limit(12);
+    setMemberships(data || []);
+    setMemLoading(false);
   }
+
+  async function loadMonthAtt(childId, month) {
+    setAttMonthLoading(true);
+    const [y, m] = month.split('-').map(Number);
+    const lastDay = new Date(y, m, 0).getDate();
+    const { data } = await supabase
+      .from('attendance')
+      .select('date, status, groups(name)')
+      .eq('child_id', childId)
+      .gte('date', `${month}-01`)
+      .lte('date', `${month}-${String(lastDay).padStart(2, '0')}`)
+      .order('date', { ascending: false });
+    setAttMonthData(data || []);
+    setAttMonthLoading(false);
+  }
+
+  useEffect(() => {
+    if (!selectedChild) return;
+    setAttMonth(currentYM());
+  }, [selectedChild]);
+
+  useEffect(() => {
+    if (!selectedChild) return;
+    loadMonthAtt(selectedChild.id, attMonth);
+  }, [selectedChild, attMonth]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ============================================================
      Add child handler
@@ -446,10 +487,6 @@ function DjecaView() {
      ============================================================ */
 
   if (selectedChild && !editingChild) {
-    const presentCount = attendance.filter((a) => a.status === 'present').length;
-    const totalCount = attendance.length;
-    const pct = totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : 0;
-
     return (
       <div className="dj-view">
         <button
@@ -567,40 +604,27 @@ function DjecaView() {
         <div className="card">
           <div className="card__body">
             <h3 className="card__title">Prisustvo</h3>
-            {detailLoading ? (
-              <p className="text-secondary">Učitavanje...</p>
+            <div className="att-month-nav">
+              <button className="att-month-btn" onClick={() => setAttMonth(s => shiftMonth(s, -1))}>‹</button>
+              <span className="att-month-label">{formatMonthLabel(attMonth)}</span>
+              <button className="att-month-btn" onClick={() => setAttMonth(s => shiftMonth(s, 1))}>›</button>
+            </div>
+            {attMonthLoading ? (
+              <p className="att-detail__empty">Učitavanje...</p>
+            ) : attMonthData.length === 0 ? (
+              <p className="att-detail__empty">Nema treninga u ovom periodu.</p>
             ) : (
-              <>
-                <p className="dj-att-summary">
-                  Došao {presentCount} od {totalCount} treninga ({pct}%)
-                </p>
-                <div className="dj-progress-bar">
-                  <div
-                    className="dj-progress-bar__fill"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-                {attendance.length > 0 && (
-                  <div className="dj-att-list">
-                    {attendance.map((a) => (
-                      <span
-                        key={a.id}
-                        className={`dj-att-dot ${
-                          a.status === 'present'
-                            ? 'dj-att-dot--yes'
-                            : 'dj-att-dot--no'
-                        }`}
-                        title={formatDateDisplay(a.date)}
-                      >
-                        {a.status === 'present' ? '✓' : '✗'}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {attendance.length === 0 && (
-                  <p className="text-secondary">Nema zabilježenih treninga.</p>
-                )}
-              </>
+              <ul className="att-detail__list">
+                {attMonthData.map(r => (
+                  <li key={r.date} className="att-detail__row">
+                    <span className="att-detail__date">{formatShortDate(r.date)}</span>
+                    <span className="att-detail__group">{r.groups?.name ?? ''}</span>
+                    <span className={r.status === 'present' ? 'att-mark-yes' : 'att-mark-no'}>
+                      {r.status === 'present' ? '✓' : '✗'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </div>
@@ -608,7 +632,7 @@ function DjecaView() {
         <div className="card">
           <div className="card__body">
             <h3 className="card__title">Članarine — zadnjih 12 mjeseci</h3>
-            {detailLoading ? (
+            {memLoading ? (
               <p className="text-secondary">Učitavanje...</p>
             ) : memberships.length === 0 ? (
               <p className="text-secondary">Nema zabilježenih članarina.</p>
