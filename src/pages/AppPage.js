@@ -75,7 +75,6 @@ function IconSettings() {
 function AppPage() {
   const { profile, signOut } = useAuth();
 
-  const isTrener = profile?.roles?.value === 'trener';
   const [activeTab, setActiveTab] = useState('overview');
 
   const clubName = profile?.clubs?.name ?? 'Klub';
