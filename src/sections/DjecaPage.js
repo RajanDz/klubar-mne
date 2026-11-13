@@ -54,23 +54,23 @@ function ChildAttendance({ childId }) {
       <div className="card__body">
         <p className="dj-att-title">Prisustvo na treninzima</p>
 
-        <div className="dj-month-nav">
-          <button className="dj-month-btn" onClick={() => setSelectedMonth(s => shiftMonth(s, -1))}>‹</button>
-          <span className="dj-month-label">{formatMonthLabel(selectedMonth)}</span>
-          <button className="dj-month-btn" onClick={() => setSelectedMonth(s => shiftMonth(s, 1))}>›</button>
+        <div className="att-month-nav">
+          <button className="att-month-btn" onClick={() => setSelectedMonth(s => shiftMonth(s, -1))}>‹</button>
+          <span className="att-month-label">{formatMonthLabel(selectedMonth)}</span>
+          <button className="att-month-btn" onClick={() => setSelectedMonth(s => shiftMonth(s, 1))}>›</button>
         </div>
 
         {loading ? (
-          <p className="dj-att-empty">Učitavanje...</p>
+          <p className="att-detail__empty">Učitavanje...</p>
         ) : monthData.length === 0 ? (
-          <p className="dj-att-empty">Nema treninga u ovom periodu.</p>
+          <p className="att-detail__empty">Nema treninga u ovom periodu.</p>
         ) : (
-          <ul className="dj-att-list">
+          <ul className="att-detail__list">
             {monthData.map(r => (
-              <li key={r.date} className="dj-att-row">
-                <span className="dj-att-date">{formatShortDate(r.date)}</span>
-                <span className="dj-att-group">{r.groups?.name ?? ''}</span>
-                <span className={r.status === 'present' ? 'dj-att-mark dj-att-mark--yes' : 'dj-att-mark dj-att-mark--no'}>
+              <li key={r.date} className="att-detail__row">
+                <span className="att-detail__date">{formatShortDate(r.date)}</span>
+                <span className="att-detail__group">{r.groups?.name ?? ''}</span>
+                <span className={r.status === 'present' ? 'att-mark-yes' : 'att-mark-no'}>
                   {r.status === 'present' ? '✓' : '✗'}
                 </span>
               </li>

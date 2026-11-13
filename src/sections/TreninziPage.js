@@ -719,7 +719,7 @@ function UpozenjaTab() {
                           <li key={r.date} className="att-detail__row">
                             <span className="att-detail__date">{formatShortDate(r.date)}</span>
                             <span className="att-detail__group">{r.groups?.name ?? ''}</span>
-                            <span className={r.status === 'present' ? 't-mark-present' : 't-mark-absent'}>
+                            <span className={r.status === 'present' ? 'att-mark-yes' : 'att-mark-no'}>
                               {r.status === 'present' ? '✓' : '✗'}
                             </span>
                           </li>
