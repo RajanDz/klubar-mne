@@ -108,7 +108,7 @@ function AppPage() {
   /* Nav items config */
   const ALL_NAV_ITEMS = [
     { id: 'overview',    label: 'Pregled',   icon: <IconHome />,     roles: ['owner', 'coordinator', 'trener'] },
-    { id: 'people',      label: 'Ljudi',     icon: <IconPeople />,   roles: ['owner', 'coordinator'] },
+    { id: 'people',      label: 'Djeca',     icon: <IconPeople />,   roles: ['owner', 'coordinator', 'trener'] },
     { id: 'treninzi',    label: 'Treninzi',  icon: <IconCalendar />, roles: ['owner', 'coordinator', 'trener'] },
     { id: 'memberships', label: 'Novac',     icon: <IconCard />,     roles: ['owner', 'coordinator', 'trener'] },
     { id: 'settings',    label: 'Postavke',  icon: <IconSettings />, roles: ['owner', 'coordinator', 'trener'] },

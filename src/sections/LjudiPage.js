@@ -14,7 +14,9 @@ function LjudiPage() {
   const { profile } = useAuth();
   const [subTab, setSubTab] = useState('djeca');
 
-  const isOwner = profile?.roles?.value === 'owner';
+  const role = profile?.roles?.value;
+  const isOwner = role === 'owner';
+  const isTrener = role === 'trener';
 
   return (
     <div className="ljudi-page">
@@ -25,12 +27,14 @@ function LjudiPage() {
         >
           Djeca
         </button>
-        <button
-          className={`ljudi-pill ${subTab === 'grupe' ? 'ljudi-pill--active' : ''}`}
-          onClick={() => setSubTab('grupe')}
-        >
-          Grupe
-        </button>
+        {!isTrener && (
+          <button
+            className={`ljudi-pill ${subTab === 'grupe' ? 'ljudi-pill--active' : ''}`}
+            onClick={() => setSubTab('grupe')}
+          >
+            Grupe
+          </button>
+        )}
         {isOwner && (
           <button
             className={`ljudi-pill ${subTab === 'treneri' ? 'ljudi-pill--active' : ''}`}
@@ -42,7 +46,7 @@ function LjudiPage() {
       </div>
 
       {subTab === 'djeca' && <DjecaView />}
-      {subTab === 'grupe' && <GrupeView />}
+      {subTab === 'grupe' && !isTrener && <GrupeView />}
       {subTab === 'treneri' && isOwner && <TreneriView />}
     </div>
   );
