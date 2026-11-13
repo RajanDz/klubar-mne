@@ -301,7 +301,7 @@ function OverviewPage({ onNavigate }) {
         .select('group_id, child_id, children(id, arch)'),
 
       supabase.from('coach_groups')
-        .select('group_id, coaches(full_name)'),
+        .select('group_id, coach_id, coaches(full_name)'),
 
       supabase.from('attendance')
         .select('child_id, group_id, date, status, children(id, full_name, arch), groups(id, name)')
@@ -334,8 +334,10 @@ function OverviewPage({ onNavigate }) {
 
     // Coach per group
     const coachMap = {};
+    const coachIdMap = {};
     for (const row of coachGroupsRes.data || []) {
-      coachMap[row.group_id] = row.coaches?.full_name ?? null;
+      coachMap[row.group_id]   = row.coaches?.full_name ?? null;
+      coachIdMap[row.group_id] = row.coach_id ?? null;
     }
 
     // Attendance already marked today
@@ -354,6 +356,7 @@ function OverviewPage({ onNavigate }) {
         groupName: g.name,
         time:      g.time ?? null,
         coachName: coachMap[g.id] ?? null,
+        coachId:   coachIdMap[g.id] ?? null,
         present:   attMap[g.id]?.present ?? 0,
         total:     gMap[g.id] ?? 0,
       }));
@@ -398,7 +401,7 @@ function OverviewPage({ onNavigate }) {
               <div
                 key={t.groupId}
                 className="ov-danas-card ov-danas-card--clickable"
-                onClick={() => onNavigate?.('treninzi')}
+                onClick={() => onNavigate?.('treninzi', t.groupId, t.coachId ?? null)}
               >
                 <div className="ov-danas-card__dot" />
                 <div className="ov-danas-card__body">

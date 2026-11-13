@@ -71,7 +71,7 @@ function AttendanceToggle({ on, onChange, disabled }) {
    TrenerView — for coordinators/coaches
    ============================================================ */
 
-function TrenerView({ coachId }) {
+function TrenerView({ coachId, initialGroupId = null }) {
   const { profile } = useAuth();
   const [groups, setGroups] = useState([]);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
@@ -123,7 +123,8 @@ function TrenerView({ coachId }) {
       setGroups(data || []);
 
       if (data && data.length > 0) {
-        setSelectedGroupId(data[0].id);
+        const preselect = initialGroupId && data.find(g => g.id === initialGroupId);
+        setSelectedGroupId(preselect ? initialGroupId : data[0].id);
       }
 
       setLoadingGroups(false);
@@ -475,7 +476,7 @@ function TrenerView({ coachId }) {
    VlasnikView — for owners
    ============================================================ */
 
-function VlasnikView() {
+function VlasnikView({ initialCoachId = null }) {
   const [coaches, setCoaches] = useState([]);
   const [selectedCoachId, setSelectedCoachId] = useState(null);
   const [groupMap, setGroupMap] = useState({});
@@ -501,7 +502,8 @@ function VlasnikView() {
       setCoaches(data || []);
 
       if (data && data.length > 0) {
-        setSelectedCoachId(data[0].id);
+        const preselect = initialCoachId && data.find(c => c.id === initialCoachId);
+        setSelectedCoachId(preselect ? initialCoachId : data[0].id);
       } else {
         setLoading(false);
       }
@@ -821,7 +823,7 @@ function PrisustvoTab() {
    TreninziPage — top-level with sub-pills
    ============================================================ */
 
-function TreninziPage() {
+function TreninziPage({ initialGroupId = null, initialCoachId = null }) {
   const { profile } = useAuth();
   const [subTab, setSubTab] = useState('treninzi');
 
@@ -848,11 +850,11 @@ function TreninziPage() {
       {subTab === 'prisustvo' ? (
         <PrisustvoTab />
       ) : isOwner ? (
-        <VlasnikView />
+        <VlasnikView initialCoachId={initialCoachId} />
       ) : isTrener ? (
-        <TrenerView coachId={profile.coach_id} />
+        <TrenerView coachId={profile.coach_id} initialGroupId={initialGroupId} />
       ) : (
-        <TrenerView />
+        <TrenerView initialGroupId={initialGroupId} />
       )}
     </div>
   );
