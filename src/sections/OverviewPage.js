@@ -191,7 +191,7 @@ function OverviewPage({ onNavigate }) {
 
     const { data: coachGroupRows } = await supabase
       .from('coach_groups')
-      .select('group_id, groups(id, name, days, time)')
+      .select('group_id, groups(id, name, days, day_times)')
       .eq('coach_id', coachId);
 
     const myGroupIds = (coachGroupRows || []).map(cg => cg.group_id);
@@ -249,7 +249,7 @@ function OverviewPage({ onNavigate }) {
       .map(g => ({
         groupId:   g.id,
         groupName: g.name,
-        time:      g.time ?? null,
+        time:      g.day_times?.[todayDay] ?? null,
         coachName: profile?.full_name ?? null,
         present:   attMap[g.id]?.present ?? 0,
         total:     gMap[g.id] ?? 0,
@@ -294,7 +294,7 @@ function OverviewPage({ onNavigate }) {
         .not('coach_id', 'is', null),
 
       supabase.from('groups')
-        .select('id, name, days, time')
+        .select('id, name, days, day_times')
         .order('name'),
 
       supabase.from('children_groups')
@@ -354,7 +354,7 @@ function OverviewPage({ onNavigate }) {
       .map(g => ({
         groupId:   g.id,
         groupName: g.name,
-        time:      g.time ?? null,
+        time:      g.day_times?.[todayDay] ?? null,
         coachName: coachMap[g.id] ?? null,
         coachId:   coachIdMap[g.id] ?? null,
         present:   attMap[g.id]?.present ?? 0,

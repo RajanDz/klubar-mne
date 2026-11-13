@@ -95,9 +95,28 @@
   color: #fff;
 }
 
+.grupe-day-times {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.grupe-day-time-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.grupe-day-time-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 32px;
+}
+
 .grupe-time-input {
-  max-width: 130px;
-  height: 44px;
+  max-width: 120px;
+  height: 40px;
 }
 
 /* ---- Mobile tweaks ---- */

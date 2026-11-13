@@ -56,7 +56,7 @@ function GrupeView() {
       supabase
         .from('groups')
         .select(
-          'id, name, description, fee, days, time, created_at, children_groups(child_id), coach_groups(coach_id, coaches(id, full_name))'
+          'id, name, description, fee, days, day_times, created_at, children_groups(child_id), coach_groups(coach_id, coaches(id, full_name))'
         )
         .order('name'),
       supabase.from('coaches').select('id, full_name, users!users_coach_id_fkey(id)').order('full_name'),
@@ -86,8 +86,11 @@ function GrupeView() {
     if (group.fee != null) parts.push(`${group.fee} €`);
     if (group.days?.length > 0) {
       const sorted = [...group.days].sort((a, b) => a - b);
-      const dayStr = sorted.map((d) => DAY_NAMES[d - 1]).join(', ');
-      parts.push(group.time ? `${dayStr} u ${group.time}` : dayStr);
+      const dayStr = sorted.map((d) => {
+        const t = group.day_times?.[d];
+        return t ? `${DAY_NAMES[d - 1]} ${t}` : DAY_NAMES[d - 1];
+      }).join(', ');
+      parts.push(dayStr);
     } else {
       parts.push('bez rasporeda');
     }
@@ -136,9 +139,14 @@ function GrupeView() {
     setSavingId(null);
   }
 
-  async function handleTimeChange(groupId, time) {
+  async function handleDayTimeChange(groupId, day, time) {
+    const group = groups.find(g => g.id === groupId);
+    const current = group?.day_times || {};
+    const updated = time
+      ? { ...current, [day]: time }
+      : Object.fromEntries(Object.entries(current).filter(([k]) => k !== String(day)));
     setSavingId(groupId);
-    await supabase.from('groups').update({ time: time || null }).eq('id', groupId);
+    await supabase.from('groups').update({ day_times: updated }).eq('id', groupId);
     await loadData();
     setSavingId(null);
   }
@@ -392,9 +400,7 @@ function GrupeView() {
                           return (
                             <button
                               key={day}
-                              className={`grupe-day-pill ${
-                                active ? 'grupe-day-pill--active' : ''
-                              }`}
+                              className={`grupe-day-pill ${active ? 'grupe-day-pill--active' : ''}`}
                               onClick={() => handleDayToggle(group, day)}
                               disabled={isSaving}
                             >
@@ -403,16 +409,23 @@ function GrupeView() {
                           );
                         })}
                       </div>
-                      <input
-                        className="form-input grupe-time-input"
-                        type="time"
-                        defaultValue={group.time || ''}
-                        onBlur={(e) =>
-                          handleTimeChange(group.id, e.target.value)
-                        }
-                        disabled={isSaving}
-                        placeholder="HH:MM"
-                      />
+                      {group.days?.length > 0 && (
+                        <div className="grupe-day-times">
+                          {[...group.days].sort((a, b) => a - b).map(day => (
+                            <div key={day} className="grupe-day-time-row">
+                              <span className="grupe-day-time-label">{DAY_NAMES[day - 1]}</span>
+                              <input
+                                key={`${group.id}-${day}`}
+                                className="form-input grupe-time-input"
+                                type="time"
+                                defaultValue={group.day_times?.[day] || ''}
+                                onBlur={(e) => handleDayTimeChange(group.id, day, e.target.value)}
+                                disabled={isSaving}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </li>
