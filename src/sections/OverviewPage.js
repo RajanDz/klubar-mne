@@ -191,7 +191,7 @@ function OverviewPage({ onNavigate }) {
 
     const { data: coachGroupRows } = await supabase
       .from('coach_groups')
-      .select('group_id, groups(id, name)')
+      .select('group_id, groups(id, name, days, time)')
       .eq('coach_id', coachId);
 
     const myGroupIds = (coachGroupRows || []).map(cg => cg.group_id);
@@ -200,9 +200,13 @@ function OverviewPage({ onNavigate }) {
 
     if (myGroupIds.length === 0) return;
 
+    // Convert JS getDay() (0=Sun) to our system (1=Mon...7=Sun)
+    const jsDay = new Date().getDay();
+    const todayDay = jsDay === 0 ? 7 : jsDay;
+
     const [todayAttRes, cgRes, inactiveAttRes, coachMoneyRes] = await Promise.all([
       supabase.from('attendance')
-        .select('child_id, group_id, status, groups(id, name)')
+        .select('child_id, group_id, status')
         .eq('date', today)
         .in('group_id', myGroupIds),
 
@@ -223,22 +227,34 @@ function OverviewPage({ onNavigate }) {
         .eq('status', 'paid'),
     ]);
 
-    const todayMap = {};
-    for (const row of todayAttRes.data || []) {
-      if (!todayMap[row.group_id]) todayMap[row.group_id] = {
-        groupId: row.group_id, groupName: row.groups?.name ?? '', present: 0, total: 0, coachName: null,
-      };
-      todayMap[row.group_id].total++;
-      if (row.status === 'present') todayMap[row.group_id].present++;
-    }
-    setTodayTrainings(Object.values(todayMap));
-
+    // Active children per group
     const gMap = {};
     for (const row of cgRes.data || []) {
       if (row.children?.arch) continue;
       gMap[row.group_id] = (gMap[row.group_id] || 0) + 1;
     }
     setGroupMemberMap(gMap);
+
+    // Attendance already marked today
+    const attMap = {};
+    for (const row of todayAttRes.data || []) {
+      if (!attMap[row.group_id]) attMap[row.group_id] = { present: 0, total: 0 };
+      attMap[row.group_id].total++;
+      if (row.status === 'present') attMap[row.group_id].present++;
+    }
+
+    // Show groups whose schedule includes today, regardless of attendance
+    const todayList = myGroups
+      .filter(g => g.days?.includes(todayDay))
+      .map(g => ({
+        groupId:   g.id,
+        groupName: g.name,
+        time:      g.time ?? null,
+        coachName: profile?.full_name ?? null,
+        present:   attMap[g.id]?.present ?? 0,
+        total:     gMap[g.id] ?? 0,
+      }));
+    setTodayTrainings(todayList);
 
     const coachMap = {};
     for (const cg of coachGroupRows || []) coachMap[cg.group_id] = profile?.full_name ?? '—';
@@ -260,7 +276,7 @@ function OverviewPage({ onNavigate }) {
       inactiveAttRes,
     ] = await Promise.all([
       supabase.from('attendance')
-        .select('child_id, group_id, status, groups(id, name)')
+        .select('child_id, group_id, status')
         .eq('date', today),
 
       supabase.from('children')
@@ -278,7 +294,7 @@ function OverviewPage({ onNavigate }) {
         .not('coach_id', 'is', null),
 
       supabase.from('groups')
-        .select('id, name')
+        .select('id, name, days, time')
         .order('name'),
 
       supabase.from('children_groups')
@@ -293,27 +309,22 @@ function OverviewPage({ onNavigate }) {
         .order('date', { ascending: false }),
     ]);
 
-    const todayMap = {};
-    for (const row of todayAttRes.data || []) {
-      if (!todayMap[row.group_id]) todayMap[row.group_id] = {
-        groupId: row.group_id, groupName: row.groups?.name ?? '', present: 0, total: 0,
-      };
-      todayMap[row.group_id].total++;
-      if (row.status === 'present') todayMap[row.group_id].present++;
-    }
+    // Convert JS getDay() (0=Sun) to our system (1=Mon...7=Sun)
+    const jsDay = new Date().getDay();
+    const todayDay = jsDay === 0 ? 7 : jsDay;
 
     const activeChildren = (allChildrenRes.data || []).filter(c => !c.arch);
     const paidSet = new Set((paidMemsRes.data || []).map(m => m.child_id));
-    const paidCnt = paidSet.size;
     setActiveCount(activeChildren.length);
-    setPaidCount(paidCnt);
-    setUnpaidCount(Math.max(0, activeChildren.length - paidCnt));
+    setPaidCount(paidSet.size);
+    setUnpaidCount(Math.max(0, activeChildren.length - paidSet.size));
 
     const money = (coachMoneyRes.data || []).reduce((s, m) => s + (parseFloat(m.amount) || 0), 0);
     setCoachMoney(money);
 
     setGroups(groupsRes.data || []);
 
+    // Active children per group
     const gMap = {};
     for (const row of cgRes.data || []) {
       if (row.children?.arch) continue;
@@ -321,14 +332,32 @@ function OverviewPage({ onNavigate }) {
     }
     setGroupMemberMap(gMap);
 
+    // Coach per group
     const coachMap = {};
     for (const row of coachGroupsRes.data || []) {
       coachMap[row.group_id] = row.coaches?.full_name ?? null;
     }
 
-    setTodayTrainings(
-      Object.values(todayMap).map(t => ({ ...t, coachName: coachMap[t.groupId] ?? null }))
-    );
+    // Attendance already marked today
+    const attMap = {};
+    for (const row of todayAttRes.data || []) {
+      if (!attMap[row.group_id]) attMap[row.group_id] = { present: 0, total: 0 };
+      attMap[row.group_id].total++;
+      if (row.status === 'present') attMap[row.group_id].present++;
+    }
+
+    // Show groups whose schedule includes today, regardless of attendance
+    const todayList = (groupsRes.data || [])
+      .filter(g => g.days?.includes(todayDay))
+      .map(g => ({
+        groupId:   g.id,
+        groupName: g.name,
+        time:      g.time ?? null,
+        coachName: coachMap[g.id] ?? null,
+        present:   attMap[g.id]?.present ?? 0,
+        total:     gMap[g.id] ?? 0,
+      }));
+    setTodayTrainings(todayList);
 
     setInactiveList(computeInactiveChildren(inactiveAttRes.data || [], coachMap));
   }
@@ -374,9 +403,9 @@ function OverviewPage({ onNavigate }) {
                 <div className="ov-danas-card__dot" />
                 <div className="ov-danas-card__body">
                   <span className="ov-danas-card__group">{t.groupName}</span>
-                  {t.coachName && (
-                    <span className="ov-danas-card__coach">{t.coachName}</span>
-                  )}
+                  <span className="ov-danas-card__coach">
+                    {[t.time, t.coachName].filter(Boolean).join(' · ')}
+                  </span>
                 </div>
                 <span className="ov-danas-card__chip">{t.present}/{t.total}</span>
               </div>
