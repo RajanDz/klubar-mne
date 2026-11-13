@@ -534,17 +534,50 @@ function TrenerView({ coachId, initialGroupId = null }) {
 }
 
 /* ============================================================
-   PrisustvoTab — djeca sa 5+ uzastopnih izostanaka
+   UpozenjaTab — djeca sa 5+ uzastopnih izostanaka
    ============================================================ */
 
-function PrisustvoTab() {
+function currentYM() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function shiftMonth(ym, delta) {
+  const [y, m] = ym.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatMonthLabel(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  const s = new Date(y, m - 1, 1).toLocaleDateString('sr-Latn', { month: 'long', year: 'numeric' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function formatShortDate(iso) {
+  const [, m, d] = iso.split('-');
+  const months = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+  return `${parseInt(d)}. ${months[parseInt(m) - 1]}`;
+}
+
+function UpozenjaTab() {
   const { profile } = useAuth();
   const isTrener = profile?.roles?.value === 'trener';
 
-  const [warnings, setWarnings] = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [warnings,     setWarnings]     = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [expandedKey,  setExpandedKey]  = useState(null);
+  const [expandedCid,  setExpandedCid]  = useState(null);
+  const [selectedMonth,setSelectedMonth]= useState(currentYM);
+  const [monthData,    setMonthData]    = useState([]);
+  const [loadingMonth, setLoadingMonth] = useState(false);
 
   useEffect(() => { loadWarnings(); }, []); // eslint-disable-line
+
+  useEffect(() => {
+    if (!expandedCid) return;
+    fetchMonthData(expandedCid, selectedMonth);
+  }, [expandedCid, selectedMonth]); // eslint-disable-line
 
   async function loadWarnings() {
     setLoading(true);
@@ -573,26 +606,54 @@ function PrisustvoTab() {
     for (const row of attData || []) {
       const key = `${row.child_id}|${row.group_id}`;
       if (!grouped[key]) grouped[key] = {
+        childId:   row.child_id,
+        groupId:   row.group_id,
         childName: row.children?.full_name ?? '',
         groupName: row.groups?.name ?? '',
-        records: [],
+        records:   [],
       };
       grouped[key].records.push(row);
     }
 
     const result = [];
-    for (const { childName, groupName, records } of Object.values(grouped)) {
+    for (const { childId, groupId, childName, groupName, records } of Object.values(grouped)) {
       let count = 0;
       for (const r of records) {
         if (r.status !== 'present') count++;
         else break;
       }
-      if (count >= 5) result.push({ childName, groupName, count });
+      if (count >= 5) result.push({ childId, groupId, childName, groupName, count });
     }
 
     result.sort((a, b) => b.count - a.count);
     setWarnings(result);
     setLoading(false);
+  }
+
+  async function fetchMonthData(childId, month) {
+    setLoadingMonth(true);
+    const [y, m] = month.split('-').map(Number);
+    const lastDay = new Date(y, m, 0).getDate();
+    const { data } = await supabase
+      .from('attendance')
+      .select('date, status, groups(name)')
+      .eq('child_id', childId)
+      .gte('date', `${month}-01`)
+      .lte('date', `${month}-${String(lastDay).padStart(2, '0')}`)
+      .order('date', { ascending: false });
+    setMonthData(data || []);
+    setLoadingMonth(false);
+  }
+
+  function toggleExpand(key, childId) {
+    if (expandedKey === key) {
+      setExpandedKey(null);
+      setExpandedCid(null);
+    } else {
+      setExpandedKey(key);
+      setExpandedCid(childId);
+      setSelectedMonth(currentYM());
+    }
   }
 
   if (loading) return <p className="text-secondary">Učitavanje...</p>;
@@ -612,24 +673,64 @@ function PrisustvoTab() {
       <p className="t-section-title">Djeca sa 5+ uzastopnih izostanaka</p>
       <div className="card">
         <ul className="att-warn-list">
-          {warnings.map((w, i) => (
-            <li
-              key={`${w.childName}|${w.groupName}`}
-              className={`att-warn-row ${i < warnings.length - 1 ? 'att-warn-row--sep' : ''}`}
-            >
-              <div
-                className="t-initials"
-                style={{ background: `hsl(${nameHue(w.childName)},45%,42%)` }}
-              >
-                {getInitials(w.childName)}
-              </div>
-              <div className="att-warn-body">
-                <span className="att-warn-name">{w.childName}</span>
-                <span className="att-warn-group">{w.groupName}</span>
-              </div>
-              <span className="att-warn-badge">{w.count} uzastopnih</span>
-            </li>
-          ))}
+          {warnings.map((w, i) => {
+            const key      = `${w.childId}|${w.groupId}`;
+            const isOpen   = expandedKey === key;
+            const isLast   = i === warnings.length - 1;
+
+            return (
+              <li key={key} className={`att-warn-row ${!isLast || isOpen ? 'att-warn-row--sep' : ''}`}>
+
+                {/* ── Clickable header ── */}
+                <div
+                  className={`att-warn-row__header ${isOpen ? 'att-warn-row__header--active' : ''}`}
+                  onClick={() => toggleExpand(key, w.childId)}
+                >
+                  <div
+                    className="t-initials"
+                    style={{ background: `hsl(${nameHue(w.childName)},45%,42%)` }}
+                  >
+                    {getInitials(w.childName)}
+                  </div>
+                  <div className="att-warn-body">
+                    <span className="att-warn-name">{w.childName}</span>
+                    <span className="att-warn-group">{w.groupName}</span>
+                  </div>
+                  <span className="att-warn-badge">{w.count} uzastopnih</span>
+                  <span className="att-warn-chevron">{isOpen ? '▲' : '▼'}</span>
+                </div>
+
+                {/* ── Inline detail panel ── */}
+                {isOpen && (
+                  <div className="att-detail">
+                    <div className="att-month-nav">
+                      <button className="att-month-btn" onClick={() => setSelectedMonth(s => shiftMonth(s, -1))}>‹</button>
+                      <span className="att-month-label">{formatMonthLabel(selectedMonth)}</span>
+                      <button className="att-month-btn" onClick={() => setSelectedMonth(s => shiftMonth(s, 1))}>›</button>
+                    </div>
+
+                    {loadingMonth ? (
+                      <p className="att-detail__empty">Učitavanje...</p>
+                    ) : monthData.length === 0 ? (
+                      <p className="att-detail__empty">Nema treninga u ovom periodu.</p>
+                    ) : (
+                      <ul className="att-detail__list">
+                        {monthData.map(r => (
+                          <li key={r.date} className="att-detail__row">
+                            <span className="att-detail__date">{formatShortDate(r.date)}</span>
+                            <span className="att-detail__group">{r.groups?.name ?? ''}</span>
+                            <span className={r.status === 'present' ? 't-mark-present' : 't-mark-absent'}>
+                              {r.status === 'present' ? '✓' : '✗'}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </div>
     </>
@@ -656,15 +757,15 @@ function TreninziPage({ initialGroupId = null }) {
           Treninzi
         </button>
         <button
-          className={`t-pill ${subTab === 'prisustvo' ? 't-pill--active' : ''}`}
-          onClick={() => setSubTab('prisustvo')}
+          className={`t-pill ${subTab === 'upozorenja' ? 't-pill--active' : ''}`}
+          onClick={() => setSubTab('upozorenja')}
         >
-          Prisustvo
+          Upozorenja
         </button>
       </div>
 
-      {subTab === 'prisustvo' ? (
-        <PrisustvoTab />
+      {subTab === 'upozorenja' ? (
+        <UpozenjaTab />
       ) : isTrener ? (
         <TrenerView coachId={profile.coach_id} initialGroupId={initialGroupId} />
       ) : (
