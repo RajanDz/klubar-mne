@@ -77,22 +77,20 @@ function AppPage() {
 
   const [activeTab, setActiveTab] = useState('overview');
   const [treninziGroupId, setTreninziGroupId] = useState(null);
-  const [treninziCoachId, setTreninziCoachId] = useState(null);
 
   const clubName = profile?.clubs?.name ?? 'Klub';
   const userName = profile?.full_name ?? '';
 
-  function handleNavClick(id, groupId = null, coachId = null) {
+  function handleNavClick(id, groupId = null) {
     setActiveTab(id);
     setTreninziGroupId(id === 'treninzi' ? groupId : null);
-    setTreninziCoachId(id === 'treninzi' ? coachId : null);
   }
 
   function renderContent() {
     if (activeTab === 'overview')    return <OverviewPage onNavigate={handleNavClick} />;
     if (activeTab === 'settings')    return <PostavkePage />;
     if (activeTab === 'people')      return <LjudiPage />;
-    if (activeTab === 'treninzi')    return <TreninziPage initialGroupId={treninziGroupId} initialCoachId={treninziCoachId} />;
+    if (activeTab === 'treninzi')    return <TreninziPage initialGroupId={treninziGroupId} />;
     if (activeTab === 'memberships') return <NovacPage />;
 
     /* Fallback for any legacy direct links to old tabs */

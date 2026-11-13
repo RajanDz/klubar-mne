@@ -401,7 +401,7 @@ function OverviewPage({ onNavigate }) {
               <div
                 key={t.groupId}
                 className="ov-danas-card ov-danas-card--clickable"
-                onClick={() => onNavigate?.('treninzi', t.groupId, t.coachId ?? null)}
+                onClick={() => onNavigate?.('treninzi', t.groupId)}
               >
                 <div className="ov-danas-card__dot" />
                 <div className="ov-danas-card__body">
