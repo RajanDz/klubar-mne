@@ -270,11 +270,11 @@
 }
 
 .cla-row__status--paid {
-  color: #16a34a;
+  color: var(--color-success);
 }
 
 .cla-row__status--unpaid {
-  color: #92400e;
+  color: var(--color-warning-text);
 }
 
 /* Naziv grupe (Sve grupe prikaz) */
@@ -338,7 +338,7 @@
 }
 
 .pay-toggle--on .pay-toggle__knob {
-  background: #16a34a;
+  background: var(--color-success);
 }
 
 .pay-toggle--on .pay-toggle__knob::after {
@@ -495,13 +495,13 @@
 }
 
 .pre-badge--pending {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .pre-badge--confirmed {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
 }
 
 /* ---- Dugmad u karticama ---- */

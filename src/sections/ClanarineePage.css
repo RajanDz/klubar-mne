@@ -169,14 +169,14 @@
 }
 
 .cl-check--paid {
-  background: #16a34a;
-  border-color: #16a34a;
+  background: var(--color-success);
+  border-color: var(--color-success);
   color: #fff;
 }
 
 .cl-check--paid:hover:not(:disabled) {
-  background: #15803d;
-  border-color: #15803d;
+  background: var(--color-success-text);
+  border-color: var(--color-success-text);
 }
 
 .cl-check:disabled {

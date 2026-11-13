@@ -181,7 +181,7 @@
 }
 
 .t-mark-present {
-  color: var(--primary);
+  color: var(--color-success);
   font-size: 16px;
   font-weight: 700;
 }

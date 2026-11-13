@@ -79,7 +79,7 @@
   font-weight: 500;
 }
 
-.set-msg--ok    { color: #16a34a; }
+.set-msg--ok    { color: var(--color-success); }
 .set-msg--error { color: var(--error); }
 
 /* ---- Drag & Drop zona ---- */
