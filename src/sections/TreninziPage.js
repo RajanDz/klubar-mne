@@ -89,6 +89,7 @@ function TrenerView({ coachId, initialGroupId = null }) {
 
   /* Inline-expand state for existing trainings */
   const [expandedDate, setExpandedDate] = useState(null);
+  const [editingDate, setEditingDate] = useState(null);
   const [expandAttendance, setExpandAttendance] = useState({});
 
   /* Load groups on mount — filtered by coach if coachId is provided */
@@ -140,6 +141,7 @@ function TrenerView({ coachId, initialGroupId = null }) {
     if (!selectedGroupId) return;
     setIsAdding(false);
     setExpandedDate(null);
+    setEditingDate(null);
     const openForm = shouldAutoOpen.current;
     shouldAutoOpen.current = false;
     loadGroupData(selectedGroupId, openForm);
@@ -243,15 +245,22 @@ function TrenerView({ coachId, initialGroupId = null }) {
     setAddAttendance(buildInitAttendance(date));
   }
 
-  /* Toggle inline expand for an existing training */
+  /* Toggle inline expand for an existing training (read-only view) */
   function toggleExpand(date) {
     if (expandedDate === date) {
       setExpandedDate(null);
+      setEditingDate(null);
       return;
     }
     setExpandedDate(date);
-    setExpandAttendance(buildInitAttendance(date));
+    setEditingDate(null);
     setIsAdding(false);
+  }
+
+  /* Switch expanded card into edit mode */
+  function startEditing(date) {
+    setEditingDate(date);
+    setExpandAttendance(buildInitAttendance(date));
   }
 
   /* Save attendance (used for both add and edit) */
@@ -280,6 +289,7 @@ function TrenerView({ coachId, initialGroupId = null }) {
     await loadGroupData(selectedGroupId);
     setIsAdding(false);
     setExpandedDate(null);
+    setEditingDate(null);
     setSaving(false);
   }
 
@@ -304,6 +314,7 @@ function TrenerView({ coachId, initialGroupId = null }) {
 
     await loadGroupData(selectedGroupId);
     setExpandedDate(null);
+    setEditingDate(null);
     setSaving(false);
   }
 
@@ -419,14 +430,15 @@ function TrenerView({ coachId, initialGroupId = null }) {
       ) : (
         <div className="t-list">
           {trainingList.map((t) => {
-            const isOpen = expandedDate === t.date;
+            const isOpen    = expandedDate === t.date;
+            const isEditing = editingDate  === t.date;
 
             return (
               <div
                 key={t.date}
                 className="card card__body"
-                style={{ cursor: 'pointer' }}
-                onClick={() => toggleExpand(t.date)}
+                style={{ cursor: isEditing ? 'default' : 'pointer' }}
+                onClick={() => !isEditing && toggleExpand(t.date)}
               >
                 {/* Card header */}
                 <div className="t-training-row">
@@ -437,12 +449,36 @@ function TrenerView({ coachId, initialGroupId = null }) {
                   <span className="t-chip">{t.present}/{t.total}</span>
                 </div>
 
-                {/* Inline expand */}
-                {isOpen && (
-                  <div
-                    className="t-expanded"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                {/* View mode: read-only ✓/✗ + Uredi dugme */}
+                {isOpen && !isEditing && (
+                  <div className="t-expanded" onClick={(e) => e.stopPropagation()}>
+                    {children.map((child) => {
+                      const isPresent = !!(treninzi[`${selectedGroupId}|${t.date}`]?.[child.id]);
+                      return (
+                        <div key={child.id} className="t-child-row">
+                          <InitialsCircle name={child.full_name} />
+                          <span className="t-child-name">{child.full_name}</span>
+                          {isPresent
+                            ? <span className="t-mark-present">✓</span>
+                            : <span className="t-mark-absent">✗</span>
+                          }
+                        </div>
+                      );
+                    })}
+                    <div className="t-form-actions" style={{ marginTop: 12 }}>
+                      <button
+                        className="btn btn-secondary btn-full"
+                        onClick={() => startEditing(t.date)}
+                      >
+                        Uredi prisustvo
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Edit mode: toggles + Sačuvaj/Odustani/Obriši */}
+                {isEditing && (
+                  <div className="t-expanded" onClick={(e) => e.stopPropagation()}>
                     {children.map((child) => (
                       <div key={child.id} className="t-child-row">
                         <InitialsCircle name={child.full_name} />
@@ -463,11 +499,11 @@ function TrenerView({ coachId, initialGroupId = null }) {
 
                     <div className="t-form-actions">
                       <button
-                        className="btn btn-outline-danger btn-full"
-                        onClick={() => handleDelete(t.date)}
+                        className="btn btn-secondary btn-full"
+                        onClick={() => setEditingDate(null)}
                         disabled={saving}
                       >
-                        Obriši trening
+                        Odustani
                       </button>
                       <button
                         className="btn btn-primary btn-full"
@@ -477,6 +513,15 @@ function TrenerView({ coachId, initialGroupId = null }) {
                         {saving ? 'Čuvanje...' : 'Sačuvaj izmjene'}
                       </button>
                     </div>
+
+                    <button
+                      className="btn btn-outline-danger btn-full"
+                      style={{ marginTop: 8 }}
+                      onClick={() => handleDelete(t.date)}
+                      disabled={saving}
+                    >
+                      Obriši trening
+                    </button>
                   </div>
                 )}
               </div>
