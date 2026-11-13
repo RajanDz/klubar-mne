@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import './TreninziPage.css';
@@ -75,6 +75,7 @@ function TrenerView({ coachId, initialGroupId = null }) {
   const { profile } = useAuth();
   const [groups, setGroups] = useState([]);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
+  const shouldAutoOpen = useRef(false);
   const [children, setChildren] = useState([]);
   const [treninzi, setTreninzi] = useState({});
   const [loadingGroups, setLoadingGroups] = useState(true);
@@ -124,6 +125,7 @@ function TrenerView({ coachId, initialGroupId = null }) {
 
       if (data && data.length > 0) {
         const preselect = initialGroupId && data.find(g => g.id === initialGroupId);
+        if (preselect) shouldAutoOpen.current = true;
         setSelectedGroupId(preselect ? initialGroupId : data[0].id);
       }
 
@@ -138,10 +140,12 @@ function TrenerView({ coachId, initialGroupId = null }) {
     if (!selectedGroupId) return;
     setIsAdding(false);
     setExpandedDate(null);
-    loadGroupData(selectedGroupId);
+    const openForm = shouldAutoOpen.current;
+    shouldAutoOpen.current = false;
+    loadGroupData(selectedGroupId, openForm);
   }, [selectedGroupId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function loadGroupData(groupId) {
+  async function loadGroupData(groupId, openAddForm = false) {
     setLoadingData(true);
 
     const { data: cgData, error: cgError } = await supabase
@@ -185,6 +189,18 @@ function TrenerView({ coachId, initialGroupId = null }) {
     });
 
     setLoadingData(false);
+
+    if (openAddForm) {
+      const today = todayISO();
+      const init = {};
+      loadedChildren.forEach(c => { init[c.id] = false; });
+      const todayKey = `${groupId}|${today}`;
+      if (map[todayKey]) Object.assign(init, map[todayKey]);
+      setAddDate(today);
+      setAddAttendance(init);
+      setIsAdding(true);
+      setExpandedDate(null);
+    }
   }
 
   function getTrainingList() {
